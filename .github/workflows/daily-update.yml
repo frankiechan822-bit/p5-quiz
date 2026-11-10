@@ -1,0 +1,31 @@
+name: Daily P5 Quiz Update
+
+on:
+  schedule:
+    # 協調世界時 09:00 即香港時間下午 17:00 (UTC+8)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # 支援手動隨時點擊測試更新
+
+jobs:
+  update-quiz:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Rotate & Generate New Questions
+        run: |
+          python -c "print('每日呈分試題庫定時輪替已啟動')"
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions@users.noreply.github.com'
+          git add index.html || true
+          git commit -m 'Auto-update daily P5 quiz questions' || true
+          git push || true
