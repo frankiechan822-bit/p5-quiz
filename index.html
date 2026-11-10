@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小五呈分試全科模擬平台 (SSPA Mock Exam)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+      background-color: #0d0f12;
+      color: #e2e8f0;
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+
+  <main class="w-full max-w-3xl mx-auto px-4 py-6 sm:py-8 flex-1 flex flex-col justify-center">
+
+    <div id="exam-card" class="bg-[#15171c] border border-[#232731] rounded-3xl p-5 sm:p-7 shadow-2xl relative">
+
+      <!-- 科目切換 Tab -->
+      <div class="flex items-center gap-2 mb-5 p-1.5 bg-[#1a1d24] border border-[#252a36] rounded-2xl">
+        <button id="tab-English" onclick="switchSubject('English')" class="flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 bg-blue-600 text-white shadow-md">
+          <i class="fa-solid fa-book"></i> 英文科
+        </button>
+        <button id="tab-Maths" onclick="switchSubject('Maths')" class="flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+          <i class="fa-solid fa-calculator"></i> 數學科
+        </button>
+        <button id="tab-Chinese" onclick="switchSubject('Chinese')" class="flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+          <i class="fa-solid fa-pen-nib"></i> 中文科
+        </button>
+      </div>
+
+      <!-- 標題與計時 -->
+      <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1f242d] text-slate-300 border border-[#2d3442]">
+            <i class="fa-solid fa-graduation-cap text-indigo-400 text-[11px]"></i>
+            HK SSPA Simulation (香港小五呈分試)
+          </span>
+          <h1 id="subject-title" class="text-xl sm:text-2xl font-bold text-white mt-2 tracking-tight">
+            英文科模擬試卷 (20題)
+          </h1>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 bg-[#1b1f27] border border-[#2b323f] px-3.5 py-1.5 rounded-full text-slate-200">
+            <i class="fa-regular fa-clock text-blue-400 text-sm"></i>
+            <span id="timer-text" class="font-mono text-base font-bold tracking-wider text-white">20:00</span>
+          </div>
+          <button id="pause-btn" onclick="togglePause()" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#212732] hover:bg-[#2c3444] text-slate-300 border border-[#2f3747] transition">
+            <span id="pause-text">Pause</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 題目調色盤 (1–20) -->
+      <div class="mt-5 bg-[#1a1d24] border border-[#262b37] rounded-2xl p-4 sm:p-5">
+        <div class="flex items-center justify-between text-xs font-semibold mb-3">
+          <span class="text-slate-400 uppercase tracking-wider">QUESTION PALETTE (1–20)</span>
+          <span id="palette-count" class="text-slate-400">0/20 answered</span>
+        </div>
+        <div id="palette-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2"></div>
+      </div>
+
+      <!-- 題目區 -->
+      <div id="question-area" class="mt-6">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="current-item-label" class="text-base sm:text-lg font-bold text-white">Item 1 of 20</span>
+            <span id="topic-tag" class="text-xs font-mono px-2.5 py-0.5 rounded-md bg-[#1f242e] text-slate-400 border border-[#2b323f]">
+              EDB Syllabus
+            </span>
+          </div>
+          <button id="flag-btn" onclick="toggleFlag()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#1a1e26] hover:bg-[#232936] text-slate-300 border border-[#2b3342] transition">
+            <i class="fa-regular fa-flag text-xs"></i>
+            <span id="flag-text">Flag for Review</span>
+          </button>
+        </div>
+
+        <div class="bg-[#191c23] border border-[#252a35] p-4 sm:p-5 rounded-2xl mb-5">
+          <p id="question-text" class="text-sm sm:text-base leading-relaxed text-slate-200 font-medium whitespace-pre-line"></p>
+        </div>
+
+        <div id="options-list" class="space-y-3"></div>
+
+        <!-- 暫停遮罩 -->
+        <div id="pause-overlay" class="hidden absolute inset-0 bg-[#0d0f12]/90 backdrop-blur-sm rounded-3xl z-30 flex-col items-center justify-center text-center p-6">
+          <div class="w-16 h-16 rounded-2xl bg-[#1e2430] border border-[#2d3648] flex items-center justify-center text-2xl text-blue-400 mb-4">
+            <i class="fa-solid fa-pause"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">測驗已暫停</h3>
+          <p class="text-slate-400 text-sm max-w-sm mb-6">計時已停止。點擊繼續按鈕回到作答畫面。</p>
+          <button onclick="togglePause()" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition">
+            Resume Exam (繼續)
+          </button>
+        </div>
+      </div>
+
+      <!-- 控制按鈕 -->
+      <div class="flex items-center justify-between gap-3 mt-8 pt-5 border-t border-[#232731]">
+        <button id="prev-btn" onclick="navigate(-1)" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-[#1c2029] hover:bg-[#262c3a] text-slate-300 border border-[#2d3546] transition disabled:opacity-30">
+          Previous
+        </button>
+        <button id="next-btn" onclick="navigate(1)" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-[#1c2029] hover:bg-[#262c3a] text-slate-300 border border-[#2d3546] transition">
+          Next
+        </button>
+        <button onclick="confirmSubmission()" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1f2737] hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/40 transition">
+          Submit Exam
+        </button>
+      </div>
+
+    </div>
+
+    <!-- 結果報告頁面 -->
+    <div id="result-view" class="hidden flex-col gap-6">
+      <div class="bg-[#15171c] border border-[#232731] rounded-3xl p-6 sm:p-8 text-center shadow-2xl">
+        <div class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-2xl mb-4 bg-blue-600/20 text-blue-400 border border-blue-500/30">
+          <i class="fa-solid fa-award"></i>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-2">測驗成果 (Exam Results)</h2>
+        <p class="text-slate-400 text-xs sm:text-sm mb-6">呈分試答題分析報告及預計分級：</p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-xl mx-auto mb-6 text-left">
+          <div class="bg-[#1a1d24] border border-[#262b37] p-3.5 rounded-2xl">
+            <span class="text-[11px] font-bold uppercase text-slate-400">總得分 (Score)</span>
+            <div id="res-score" class="text-xl sm:text-2xl font-black text-white mt-1">-- / 20</div>
+          </div>
+          <div class="bg-[#1a1d24] border border-[#262b37] p-3.5 rounded-2xl">
+            <span class="text-[11px] font-bold uppercase text-slate-400">正確率 (Accuracy)</span>
+            <div id="res-accuracy" class="text-xl sm:text-2xl font-black text-emerald-400 mt-1">--%</div>
+          </div>
+          <div class="bg-[#1a1d24] border border-[#262b37] p-3.5 rounded-2xl">
+            <span class="text-[11px] font-bold uppercase text-slate-400">答題時間 (Time)</span>
+            <div id="res-time" class="text-xl sm:text-2xl font-black text-blue-400 mt-1">--:--</div>
+          </div>
+          <div class="bg-[#1a1d24] border border-[#262b37] p-3.5 rounded-2xl">
+            <span class="text-[11px] font-bold uppercase text-slate-400">呈分試評級 (Band)</span>
+            <div id="res-band" class="text-xl sm:text-2xl font-black text-amber-400 mt-1">Band 1</div>
+          </div>
+        </div>
+
+        <button onclick="retakeSubject()" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition">
+          <i class="fa-solid fa-rotate-right mr-1.5"></i> 重新作答本卷
+        </button>
+      </div>
+
+      <div class="bg-[#15171c] border border-[#232731] rounded-3xl p-6 sm:p-8 shadow-2xl">
+        <h3 class="text-lg font-bold text-white mb-5 flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-blue-400"></i> 逐題剖析與失分陷阱
+        </h3>
+        <div id="review-cards" class="space-y-4"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // 預設內建題目數據（保證本地雙擊直接運行，不受跨網域安全阻擋）
+    const fallbackDB = {
+      English: [
+        { id: 1, category: "Subject-Verb Agreement", question: "Neither Peter nor his brothers ________ at home when Mum came back from the market.", options: ["is", "are", "was", "were"], answer: 3, explanation: "「Neither... nor...」動詞依隨靠近的主語。靠近的主語是「brothers」（複數），配合過去時間「came back」，故用 were。" },
+        { id: 2, category: "Question Tags", question: "Miss Lee drank a cup of warm tea just now, ________?", options: ["doesn't she", "didn't she", "wasn't she", "did she"], answer: 1, explanation: "前半句 drank 是過去式肯定句，附加問句必須用過去式否定助動詞 didn't，主語用代名詞 she。" },
+        { id: 3, category: "Past Continuous Tense", question: "While my sister ________ her homework, the telephone suddenly rang.", options: ["is doing", "did", "was doing", "does"], answer: 2, explanation: "While 連接過去進行中的動作（was doing），被另一個突發短動作（rang）打斷。" },
+        { id: 4, category: "Prepositions", question: "My best friend is very keen ________ playing table tennis after school.", options: ["at", "on", "in", "with"], answer: 1, explanation: "固定介詞搭配：keen on + 名詞/動名詞，解作「熱衷於……」。" },
+        { id: 5, category: "Connectives", question: "You will not catch the school bus ________ you get up immediately.", options: ["unless", "although", "because", "since"], answer: 0, explanation: "unless 相當於 if not（除非）。全句意思是「除非你立即起床，否則你趕不上校巴」。" },
+        { id: 6, category: "Nouns & Plurals", question: "The chef sliced three ________ of fresh bread for our breakfast.", options: ["loaf", "loafs", "loaves", "pieces of loaf"], answer: 2, explanation: "名詞以 -f 結尾，複數去 f 變 ves：loaf 變成 loaves。" },
+        { id: 7, category: "Proofreading", question: "Find the mistake: \"Uncle David has lived (A) in Shatin (B) since (C) eight years (D).\"", options: ["has lived", "in", "since", "eight years"], answer: 2, explanation: "eight years 是一段時間長度，應用 for 代替 since。" },
+        { id: 8, category: "Comparatives", question: "Tim is much ________ at drawing cartoons than his elder brother.", options: ["good", "better", "best", "more good"], answer: 1, explanation: "有比較詞 than，需用比較級 better，前面的 much 用作加強程度。" },
+        { id: 9, category: "Prepositions", question: "The heavy thunderstorm prevented us ________ going hiking in Sai Kung.", options: ["to", "from", "for", "with"], answer: 1, explanation: "固定搭配：prevent someone from doing something（阻止某人做某事）。" },
+        { id: 10, category: "Future Intention", question: "Look at those dark clouds! It ________ rain very soon.", options: ["will be", "is going to", "has been", "would"], answer: 1, explanation: "眼前有明確跡象（dark clouds）顯示將會發生的事情，優先使用 is going to。" },
+        { id: 11, category: "Indefinite Pronouns", question: "Everyone in Primary 5 ________ excited about the school picnic next Friday.", options: ["is", "are", "were", "be"], answer: 0, explanation: "Everyone 文法上視為單數，動詞配 is。" },
+        { id: 12, category: "Possessives", question: "The cute puppy wagged ________ tail when I gave it a biscuit.", options: ["it's", "its", "its'", "it"], answer: 1, explanation: "「它的」物主代名詞為 its，沒有撇號；it's 是 it is 的縮寫。" },
+        { id: 13, category: "Negative Purpose", question: "We packed our school bags early ________ forget our homework tomorrow.", options: ["in order to", "so that", "so as not to", "because of"], answer: 2, explanation: "表否定目的「為免忘記……」，接原形動詞用 so as not to。" },
+        { id: 14, category: "Reflexive Pronouns", question: "The two girls made the model spaceship all by ________.", options: ["theirselves", "themselves", "themself", "them"], answer: 1, explanation: "第三人稱複數反身代名詞為 themselves，沒有 theirselves 這個字。" },
+        { id: 15, category: "Proofreading", question: "Find the error: \"He didn't (A) bought (B) any (C) snacks (D) in the tuck shop.\"", options: ["didn't", "bought", "any", "snacks"], answer: 1, explanation: "在助動詞 didn't 後面，動詞必須回復原形 buy。" },
+        { id: 16, category: "Phrasal Verbs", question: "Please remember to turn ________ the lights before leaving the classroom.", options: ["on", "off", "up", "down"], answer: 1, explanation: "離開房間時「關掉」電燈用 turn off。" },
+        { id: 17, category: "Quantifiers", question: "The math puzzle was very hard, so ________ students could solve it.", options: ["few", "a few", "little", "a little"], answer: 0, explanation: "students 是可數名詞，且強調「幾乎沒有人做到」（帶否定意思），用 few。" },
+        { id: 18, category: "Universal Truth", question: "Our teacher told us that water ________ at 100 degrees Celsius.", options: ["boil", "boiled", "boils", "is boiling"], answer: 2, explanation: "科學常理與客觀事實永遠使用一般現在式，water 是不可數單數名詞，動詞加 s（boils）。" },
+        { id: 19, category: "Tenses & Since", question: "Mary and Cindy ________ good friends since they joined the swimming team.", options: ["are", "were", "have been", "had been"], answer: 2, explanation: "由過去持續到現在（since），主句使用現在完成式 have been。" },
+        { id: 20, category: "Preferences", question: "I would rather drink milk ________ drink soft drinks.", options: ["than", "then", "to", "instead"], answer: 0, explanation: "句型：would rather do something than do something（寧願做……也不願做……）。" }
+      ],
+      Maths: [
+        { id: 1, category: "分數乘法", question: "計算：3/4 × 2/9 = ？（請化至最簡分數）", options: ["1/6", "5/13", "6/36", "1/12"], answer: 0, explanation: "分子相乘 3×2=6，分母相乘 4×9=36。約簡：6/36 = 1/6。" },
+        { id: 2, category: "小數四則應用", question: "一盒彩色筆售 23.5 元，買 3 盒付 100 元，應找回多少元？", options: ["29.5 元", "30.5 元", "70.5 元", "28.5 元"], answer: 0, explanation: "3 盒總價 = 23.5 × 3 = 70.5 元。應找回 = 100 - 70.5 = 29.5 元。" },
+        { id: 3, category: "簡易方程", question: "解方程：4y + 12 = 36，y 的值是多少？", options: ["6", "8", "12", "7"], answer: 0, explanation: "4y = 36 - 12 = 24，y = 24 ÷ 4 = 6。" },
+        { id: 4, category: "平行四邊形面積", question: "平行四邊形的底是 15 cm，高是 8 cm，它的面積是多少 cm²？", options: ["60 cm²", "120 cm²", "240 cm²", "46 cm²"], answer: 1, explanation: "平行四邊形面積 = 底 × 高 = 15 × 8 = 120 cm²。" },
+        { id: 5, category: "分數應用題", question: "一瓶牛奶有 1 又 1/2 公升，弟弟喝了 2/3 公升，還剩下多少公升？", options: ["5/6 公升", "1/2 公升", "1/6 公升", "1 又 1/6 公升"], answer: 0, explanation: "1 又 1/2 - 2/3 = 3/2 - 2/3 = 9/6 - 4/6 = 5/6 公升。" },
+        { id: 6, category: "長方體體積", question: "長方體紙盒長 12 cm、闊 10 cm、高 5 cm，體積是多少 cm³？", options: ["600 cm³", "120 cm³", "300 cm³", "60 cm³"], answer: 0, explanation: "長方體體積 = 長 × 闊 × 高 = 12 × 10 × 5 = 600 cm³。" },
+        { id: 7, category: "百分數化分數", question: "把 45% 化為最簡分數，結果是多少？", options: ["9/20", "45/100", "9/10", "4/5"], answer: 0, explanation: "45% = 45/100，分子分母同除以 5，化簡為 9/20。" },
+        { id: 8, category: "梯形面積", question: "梯形上底 7 cm，下底 13 cm，高 6 cm，面積是多少 cm²？", options: ["60 cm²", "120 cm²", "40 cm²", "80 cm²"], answer: 0, explanation: "梯形面積 = (上底 + 下底) × 高 ÷ 2 = (7 + 13) × 6 ÷ 2 = 20 × 6 ÷ 2 = 60 cm²。" },
+        { id: 9, category: "分數除法", question: "計算：4/5 ÷ 2/3 = ？", options: ["1 又 1/5", "6/5", "8/15", "以上 A 及 B 皆對"], answer: 3, explanation: "4/5 ÷ 2/3 = 4/5 × 3/2 = 12/10 = 6/5 = 1 又 1/5。A 和 B 都代表正確數值。" },
+        { id: 10, category: "簡易方程列式", question: "志明有 x 枝鉛筆，小華的鉛筆比志明的 3 倍多 2 枝。若小華有 20 枝，方程是：", options: ["3x + 2 = 20", "3x - 2 = 20", "x/3 + 2 = 20", "3(x + 2) = 20"], answer: 0, explanation: "志明的 3 倍是 3x，多 2 枝即 3x + 2，等於小華的 20 枝。" },
+        { id: 11, category: "小數除法", question: "一條絲帶長 7.2 米，每 0.8 米剪成一條彩帶，共可剪成多少條？", options: ["9 條", "90 條", "0.9 條", "8 條"], answer: 0, explanation: "7.2 ÷ 0.8 = 72 ÷ 8 = 9 條。" },
+        { id: 12, category: "三角形面積", question: "直角三角形兩條直角邊分別是 8 cm 和 15 cm，它的面積是多少 cm²？", options: ["60 cm²", "120 cm²", "30 cm²", "23 cm²"], answer: 0, explanation: "直角三角形面積 = 底 × 高 ÷ 2 = 8 × 15 ÷ 2 = 60 cm²。" },
+        { id: 13, category: "平均數概念", question: "家聰四次英文默書成績分別是 82、90、88、100，平均分是多少？", options: ["90 分", "88 分", "92 分", "89 分"], answer: 0, explanation: "總分 = 82 + 90 + 88 + 100 = 360 分。平均分 = 360 ÷ 4 = 90 分。" },
+        { id: 14, category: "分數加減混合", question: "計算：2 又 1/4 - 1 又 1/3 = ？", options: ["11/12", "1 又 1/12", "5/12", "7/12"], answer: 0, explanation: "通分母為 12：2 又 3/12 - 1 又 4/12 = 1 又 15/12 - 1 又 4/12 = 11/12。" },
+        { id: 15, category: "正方形周界與面積", question: "一個正方形的周界是 36 cm，它的面積是多少 cm²？", options: ["81 cm²", "72 cm²", "36 cm²", "144 cm²"], answer: 0, explanation: "邊長 = 36 ÷ 4 = 9 cm。面積 = 9 × 9 = 81 cm²。" },
+        { id: 16, category: "單位換算", question: "3.25 公升等於多少毫升 (mL)？", options: ["3250 mL", "325 mL", "3025 mL", "32500 mL"], answer: 0, explanation: "1 公升 = 1000 毫升。3.25 × 1000 = 3250 mL。" },
+        { id: 17, category: "工作工程題", question: "工班每天修築路軌 2/7 公里，修了 3 天，共修築路軌多少公里？", options: ["6/7 公里", "5/7 公里", "1 公里", "6/21 公里"], answer: 0, explanation: "2/7 × 3 = 6/7 公里。" },
+        { id: 18, category: "代數式求值", question: "原子筆每枝 m 元，筆記簿每本 15 元。買 4 枝筆和 1 本筆記簿需付：", options: ["4m + 15 元", "m + 15 元", "4(m + 15) 元", "60m 元"], answer: 0, explanation: "4 枝筆價錢為 4m 元，加筆記簿 15 元，總計 4m + 15 元。" },
+        { id: 19, category: "複合圖形", question: "長方形長 12 cm、闊 8 cm，剪去邊長 4 cm 的正方形，剩下部分面積是多少？", options: ["80 cm²", "96 cm²", "16 cm²", "84 cm²"], answer: 0, explanation: "長方形面積 = 12 × 8 = 96 cm²。正方形 = 4 × 4 = 16 cm²。剩餘 = 96 - 16 = 80 cm²。" },
+        { id: 20, category: "速度基本應用", question: "私家車以時速 80 公里行駛，半小時（30分鐘）行駛了多少公里？", options: ["40 公里", "80 公里", "20 公里", "160 公里"], answer: 0, explanation: "30 分鐘 = 0.5 小時。距離 = 速度 × 時間 = 80 × 0.5 = 40 公里。" }
+      ],
+      Chinese: [
+        { id: 1, category: "錯別字辨識", question: "下列句子中，哪一個詞語「沒有」錯別字？", options: ["他為人非常大方，從不斤斤計較。", "這道題目的難度簡直不可思意。", "經過多年努力，他終於功成名就，光宗躍祖。", "我們在圖書館裡要保持肅靜，切勿高聲申訴。"], answer: 0, explanation: "A 完全正確。B 應為「不可思議」；C 應為「光宗耀祖」；D 應為「喧嘩/喧鬧」。" },
+        { id: 2, category: "成語運用", question: "「只要我們大家________，同心協力，一定可以渡過眼前難關。」橫線上最適合填入哪一個成語？", options: ["同舟共濟", "袖手旁觀", "各自為政", "墨守成規"], answer: 0, explanation: "「同舟共濟」比喻同心協力克服困難。" },
+        { id: 3, category: "關聯詞搭配", question: "選出最恰當的關聯詞：「________明天下大雨，學校的校運會________會如期舉行。」", options: ["即使……也……", "因為……所以……", "如果……就……", "雖然……但是……"], answer: 0, explanation: "假設讓步關係，用「即使……也……」。" },
+        { id: 4, category: "修辭手法辨析", question: "「春天來了，粉紅的桃花在枝頭對著我們微笑。」這句話運用了哪種修辭手法？", options: ["擬人", "比喻", "排比", "誇張"], answer: 0, explanation: "賦予桃花「微笑」的人類動作，屬於擬人。" },
+        { id: 5, category: "病句辨析", question: "下列哪一句是沒有語病的正確句子？", options: ["在老師的耐性指導下，我的中文寫作水平有了顯著的提高。", "全班同學都參加了這次活動，只有小明一個人沒有缺席。", "昨天傍晚下了一整天的大雨。", "我斷定他今天可能不會來學校。"], answer: 0, explanation: "A 正確。B 語意矛盾；C 傍晚不能下整天；D 「斷定」與「可能」矛盾。" },
+        { id: 6, category: "標點符號運用", question: "「我最喜愛的課外活動有很多，例如_____踢足球、彈鋼琴、下圍棋和畫畫。」橫線應填入什麼標點符號？", options: ["冒號（：）", "破折號（——）", "逗號（，）", "省略號（……）"], answer: 0, explanation: "舉例提示下文用冒號。" },
+        { id: 7, category: "近義詞辨析", question: "「警方在案發現場搜集到十分________的線索。」橫線上填入哪一個詞最恰當？", options: ["寶貴", "名貴", "珍奇", "貴重"], answer: 0, explanation: "形容具重大參考價值的線索用「寶貴」。" },
+        { id: 8, category: "詞性辨析", question: "在「他認真閱讀課本」一句中，「認真」是什麼詞性的詞語？", options: ["副詞（修飾動詞）", "動詞", "名詞", "連詞"], answer: 0, explanation: "修飾動詞「閱讀」，屬副詞用法。" },
+        { id: 9, category: "語句重組", question: "將下列詞組重組為通順句子：\n①撲向 ②飢餓的老鷹 ③草叢中的野兔 ④從高空俯衝下來", options: ["②④①③", "④②①③", "②①③④", "④①③②"], answer: 0, explanation: "飢餓的老鷹(②)從高空俯衝下來(④)撲向(①)草叢中的野兔(③)。" },
+        { id: 10, category: "反義詞搭配", question: "「簡陋」的反義詞是什麼？", options: ["豪華", "簡約", "普通", "狹窄"], answer: 0, explanation: "簡陋反義詞為豪華。" },
+        { id: 11, category: "修辭辨析：排比", question: "「燕子去了，有再來的時候；楊柳枯了，有再青的時候；桃花謝了，有再開的時候。」這句話運用了哪種修辭？", options: ["排比", "對偶", "誇張", "借代"], answer: 0, explanation: "三個結構相同語氣一致的句子並列為排比。" },
+        { id: 12, category: "成語正字", question: "下列哪一個成語有錯別字？", options: ["再接再勵", "迎刃而解", "迫不及待", "各抒己見"], answer: 0, explanation: "應為「再接再厲」（厲指磨礪）。" },
+        { id: 13, category: "主謂賓結構", question: "「活潑可愛的小弟弟在客廳開心地玩著積木。」這句話的主要動詞（謂語）是哪一個字？", options: ["玩", "開心地", "是", "小弟弟"], answer: 0, explanation: "核心謂語動詞為「玩」。" },
+        { id: 14, category: "關聯詞判斷", question: "「他________家境清貧，________從不放棄求學的志向。」橫線應填入：", options: ["雖然……但是……", "因為……所以……", "不但……而且……", "寧可……也不……"], answer: 0, explanation: "轉折複句用「雖然……但是……」。" },
+        { id: 15, category: "詞語褒貶色彩", question: "下列哪一個詞語屬於「褒義詞」（正面讚賞）？", options: ["臨危不懼", "自以為是", "投機取巧", "巧言令色"], answer: 0, explanation: "臨危不懼為褒義詞。" },
+        { id: 16, category: "錯別字修正", question: "「他因粗心大意而在考試中名落孫山，感到十分『懊悔』。」括號中的字詞是否正確？", options: ["完全正確", "應改為「傲悔」", "應改為「奧悔」", "應改為「惱悔」"], answer: 0, explanation: "「懊悔」完全正確。" },
+        { id: 17, category: "成語理解", question: "「守株待兔」這個成語告誡我們什麼道理？", options: ["不付出努力，只寄望意外收獲是行不通的", "要學會愛護大自然的小動物", "農夫應該轉行做獵人", "機會每天都會在同一地方出現"], answer: 0, explanation: "告誡不可妄想不勞而獲。" },
+        { id: 18, category: "動詞搭配", question: "選出搭配最恰當的動詞：「為了維護校園秩序，學校________了一系列嚴格的守則。」", options: ["制訂", "制造", "發明", "造就"], answer: 0, explanation: "規則、守則搭配為「制訂」。" },
+        { id: 19, category: "修辭辨析：設問", question: "「什麼是人生最大的快樂？就是用自己的雙手創造幸福。」這句話運用了：", options: ["設問（自問自答）", "反問（無疑問而問）", "疑問", "嘆詠"], answer: 0, explanation: "自問自答為設問。" },
+        { id: 20, category: "語體辨析", question: "下列哪一句完全符合正規書面語要求，沒有口語化詞彙？", options: ["這項任務十分繁重，我們必須竭盡全力去完成。", "今日返學嗰陣時，我唔小心跌親。", "佢好叻，成日都考第一名。", "大家千祈唔好隨地丟垃圾啊！"], answer: 0, explanation: "A 為規範書面語，其他含粵語方言。" }
+      ]
+    };
+
+    let currentSubject = 'English';
+    let currentIdx = 0;
+    let subjectData = JSON.parse(JSON.stringify(fallbackDB));
+    let userAnswers = { English: new Array(20).fill(null), Maths: new Array(20).fill(null), Chinese: new Array(20).fill(null) };
+    let userFlags = { English: new Array(20).fill(false), Maths: new Array(20).fill(false), Chinese: new Array(20).fill(false) };
+    let timers = { English: 1200, Maths: 1200, Chinese: 1200 };
+    let timeSpent = { English: 0, Maths: 0, Chinese: 0 };
+    let timerId = null;
+    let isPaused = false;
+
+    function switchSubject(sub) {
+      currentSubject = sub;
+      currentIdx = 0;
+
+      ['English', 'Maths', 'Chinese'].forEach(s => {
+        const tab = document.getElementById(`tab-${s}`);
+        if (s === sub) {
+          tab.className = "flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 bg-blue-600 text-white shadow-md";
+        } else {
+          tab.className = "flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white";
+        }
+      });
+
+      const titles = {
+        English: '英文科模擬試卷 (20題)',
+        Maths: '數學科模擬試卷 (20題)',
+        Chinese: '中文科模擬試卷 (20題)'
+      };
+      document.getElementById('subject-title').textContent = titles[sub];
+
+      renderPalette();
+      loadQuestion(0);
+      renderTimer();
+    }
+
+    function renderPalette() {
+      const grid = document.getElementById('palette-grid');
+      grid.innerHTML = '';
+      for (let i = 0; i < 20; i++) {
+        const btn = document.createElement('button');
+        btn.id = `pal-${i}`;
+        btn.textContent = i + 1;
+        btn.className = getPaletteClass(i);
+        btn.onclick = () => { if (!isPaused) loadQuestion(i); };
+        grid.appendChild(btn);
+      }
+      updateAnsweredCount();
+    }
+
+    function getPaletteClass(i) {
+      const isCur = i === currentIdx;
+      const isAns = userAnswers[currentSubject][i] !== null;
+      const isFlg = userFlags[currentSubject][i];
+      let base = "h-9 w-full rounded-xl text-xs font-bold transition flex items-center justify-center ";
+
+      if (isCur) return base + "bg-[#1d2535] text-blue-400 border-2 border-blue-500 shadow-md";
+      if (isFlg) return base + "bg-[#25221b] text-amber-300 border border-amber-500/80";
+      if (isAns) return base + "bg-blue-600/25 text-blue-300 border border-blue-500/60";
+      return base + "bg-[#181c24] text-slate-400 border border-[#272e3d] hover:bg-[#202632]";
+    }
+
+    function updateAnsweredCount() {
+      const count = userAnswers[currentSubject].filter(a => a !== null).length;
+      document.getElementById('palette-count').textContent = `${count}/20 answered`;
+    }
+
+    function loadQuestion(idx) {
+      currentIdx = idx;
+      const qList = subjectData[currentSubject];
+      if (!qList || qList.length === 0) return;
+
+      const q = qList[idx];
+
+      document.getElementById('current-item-label').textContent = `Item ${idx + 1} of 20`;
+      document.getElementById('topic-tag').textContent = `${q.category} • EDB Syllabus`;
+      document.getElementById('question-text').textContent = q.question;
+
+      updateFlagButtonUI();
+
+      const container = document.getElementById('options-list');
+      container.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+
+      q.options.forEach((opt, optIdx) => {
+        const isChosen = userAnswers[currentSubject][currentIdx] === optIdx;
+        const btn = document.createElement('button');
+        btn.className = `w-full text-left p-3.5 sm:p-4 rounded-2xl border transition flex items-center justify-between group ${
+          isChosen
+            ? 'bg-[#1b253b] border-blue-500 text-white shadow-lg ring-1 ring-blue-500/50'
+            : 'bg-[#171a21] border-[#252b37] hover:border-[#353d4e] hover:bg-[#1c202a] text-slate-300'
+        }`;
+
+        btn.onclick = () => {
+          if (!isPaused) {
+            userAnswers[currentSubject][currentIdx] = optIdx;
+            loadQuestion(currentIdx);
+          }
+        };
+
+        btn.innerHTML = `
+          <div class="flex items-center gap-3.5">
+            <span class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold transition ${
+              isChosen ? 'bg-blue-600 text-white shadow-md' : 'bg-[#222733] text-slate-400 group-hover:text-slate-200 border border-[#2d3444]'
+            }">${letters[optIdx]}</span>
+            <span class="text-sm sm:text-base ${isChosen ? 'text-white font-medium' : ''}">${opt}</span>
+          </div>
+          ${isChosen ? '<i class="fa-solid fa-circle-check text-blue-400 text-base"></i>' : ''}
+        `;
+        container.appendChild(btn);
+      });
+
+      document.getElementById('prev-btn').disabled = idx === 0;
+      document.getElementById('next-btn').disabled = idx === 19;
+
+      for (let i = 0; i < 20; i++) {
+        const b = document.getElementById(`pal-${i}`);
+        if (b) b.className = getPaletteClass(i);
+      }
+      updateAnsweredCount();
+    }
+
+    function navigate(delta) {
+      const next = currentIdx + delta;
+      if (next >= 0 && next < 20) loadQuestion(next);
+    }
+
+    function toggleFlag() {
+      userFlags[currentSubject][currentIdx] = !userFlags[currentSubject][currentIdx];
+      updateFlagButtonUI();
+      const b = document.getElementById(`pal-${currentIdx}`);
+      if (b) b.className = getPaletteClass(currentIdx);
+    }
+
+    function updateFlagButtonUI() {
+      const isFlg = userFlags[currentSubject][currentIdx];
+      const flagBtn = document.getElementById('flag-btn');
+      const flagText = document.getElementById('flag-text');
+      if (isFlg) {
+        flagBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/60 transition";
+        flagText.textContent = "Flagged";
+        flagBtn.querySelector('i').className = "fa-solid fa-flag text-xs text-amber-400";
+      } else {
+        flagBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#1a1e26] hover:bg-[#232936] text-slate-300 border border-[#2b3342] transition";
+        flagText.textContent = "Flag for Review";
+        flagBtn.querySelector('i').className = "fa-regular fa-flag text-xs";
+      }
+    }
+
+    function startTimer() {
+      clearInterval(timerId);
+      timerId = setInterval(() => {
+        if (!isPaused) {
+          if (timers[currentSubject] > 0) {
+            timers[currentSubject]--;
+            timeSpent[currentSubject]++;
+            renderTimer();
+          } else {
+            clearInterval(timerId);
+            finishExam();
+          }
+        }
+      }, 1000);
+    }
+
+    function renderTimer() {
+      const m = Math.floor(timers[currentSubject] / 60);
+      const s = timers[currentSubject] % 60;
+      document.getElementById('timer-text').textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function togglePause() {
+      isPaused = !isPaused;
+      const overlay = document.getElementById('pause-overlay');
+      const txt = document.getElementById('pause-text');
+      if (isPaused) {
+        txt.textContent = "Resume";
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+      } else {
+        txt.textContent = "Pause";
+        overlay.classList.remove('flex');
+        overlay.classList.add('hidden');
+      }
+    }
+
+    function confirmSubmission() {
+      const unans = userAnswers[currentSubject].filter(a => a === null).length;
+      let msg = "確定現在交卷嗎？";
+      if (unans > 0) msg = `你尚有 ${unans} 題未作答！確定現在交卷嗎？`;
+      if (window.confirm(msg)) finishExam();
+    }
+
+    function finishExam() {
+      document.getElementById('exam-card').classList.add('hidden');
+      document.getElementById('result-view').classList.remove('hidden');
+      document.getElementById('result-view').classList.add('flex');
+
+      let score = 0;
+      const qList = subjectData[currentSubject];
+      qList.forEach((q, idx) => {
+        if (userAnswers[currentSubject][idx] === q.answer) score++;
+      });
+
+      const accuracy = Math.round((score / 20) * 100);
+      const spent = timeSpent[currentSubject];
+      const m = Math.floor(spent / 60);
+      const s = spent % 60;
+
+      document.getElementById('res-score').textContent = `${score} / 20`;
+      document.getElementById('res-accuracy').textContent = `${accuracy}%`;
+      document.getElementById('res-time').textContent = `${m}分 ${s}秒`;
+
+      let banding = 'Band 3';
+      if (score >= 18) banding = 'Band 1A (頂尖)';
+      else if (score >= 15) banding = 'Band 1 (良好)';
+      else if (score >= 11) banding = 'Band 2 (中等)';
+      document.getElementById('res-band').textContent = banding;
+
+      const container = document.getElementById('review-cards');
+      container.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+
+      qList.forEach((q, i) => {
+        const userChoice = userAnswers[currentSubject][i];
+        const isOk = userChoice === q.answer;
+        const card = document.createElement('div');
+        card.className = `p-4 sm:p-5 rounded-2xl border transition ${isOk ? 'bg-[#141d1a] border-emerald-500/30' : 'bg-[#201518] border-rose-500/30'}`;
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2 mb-2 flex-wrap">
+            <span class="font-bold text-white text-sm sm:text-base">第 ${i + 1} 題：${q.question}</span>
+            <span class="px-2.5 py-0.5 rounded-md text-xs font-bold ${isOk ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'}">
+              ${isOk ? '答對 Correct' : '答錯 Incorrect'}
+            </span>
+          </div>
+          <div class="text-xs sm:text-sm text-slate-300 grid grid-cols-1 sm:grid-cols-2 gap-2 my-2.5">
+            <div class="bg-[#181a20] p-2.5 rounded-xl border border-[#252832]">
+              你的答案：<strong class="${isOk ? 'text-emerald-400' : 'text-rose-400'}">${userChoice !== null ? letters[userChoice] + '. ' + q.options[userChoice] : '未作答'}</strong>
+            </div>
+            <div class="bg-[#181a20] p-2.5 rounded-xl border border-[#252832]">
+              正確答案：<strong class="text-emerald-400">${letters[q.answer]}. ${q.options[q.answer]}</strong>
+            </div>
+          </div>
+          <div class="mt-3 text-xs sm:text-sm bg-[#161921] p-3.5 rounded-xl border border-[#262c3a] text-slate-300 leading-relaxed">
+            <strong class="text-blue-400 font-semibold block mb-1">呈分試重點思路：</strong>
+            ${q.explanation}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function retakeSubject() {
+      userAnswers[currentSubject].fill(null);
+      userFlags[currentSubject].fill(false);
+      timers[currentSubject] = 1200;
+      timeSpent[currentSubject] = 0;
+      isPaused = false;
+
+      document.getElementById('result-view').classList.remove('flex');
+      document.getElementById('result-view').classList.add('hidden');
+      document.getElementById('exam-card').classList.remove('hidden');
+
+      loadQuestion(0);
+      renderPalette();
+    }
+
+    window.onload = () => {
+      switchSubject('English');
+      startTimer();
+    };
+  </script>
+</body>
+</html>
+```eof
