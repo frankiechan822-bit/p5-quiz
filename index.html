@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>小五呈分試全科模擬平台 (SSPA Mock Exam)</title>
+  <title>香港小五呈分試模擬練習平台 (P5 Pre-S1 Assessment)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap');
     body {
       font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
-      background-color: #0d0f12;
+      background-color: #0b0d11;
       color: #e2e8f0;
       -webkit-font-smoothing: antialiased;
     }
@@ -18,251 +18,1017 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-blue-600 selection:text-white">
 
-  <main class="w-full max-w-3xl mx-auto px-4 py-6 sm:py-8 flex-1 flex flex-col justify-center">
+  <main class="w-full max-w-4xl mx-auto px-4 py-6 sm:py-8 flex-1 flex flex-col justify-center">
 
-    <div id="exam-card" class="bg-[#15171c] border border-[#232731] rounded-3xl p-5 sm:p-7 shadow-2xl relative">
+    <!-- Main Exam Container -->
+    <div id="exam-card" class="bg-[#13151b] border border-[#222631] rounded-3xl p-5 sm:p-7 shadow-2xl relative">
 
-      <!-- 科目切換 Tab -->
-      <div class="flex items-center gap-2 mb-5 p-1.5 bg-[#1a1d24] border border-[#252a36] rounded-2xl">
-        <button id="tab-English" onclick="switchSubject('English')" class="flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 bg-blue-600 text-white shadow-md">
-          <i class="fa-solid fa-book"></i> 英文科
+      <!-- Daily Rotation Banner & Subject Tabs -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 bg-[#181b23] border border-[#252a37] px-4 py-2.5 rounded-2xl">
+        <div class="flex items-center gap-2 text-xs text-slate-300">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="daily-rotation-info">系統已按今日日期自動載入輪替科目</span>
+        </div>
+        <span id="hk-date-badge" class="text-xs font-mono text-slate-400"></span>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 mb-6 p-1.5 bg-[#191c24] border border-[#252a36] rounded-2xl text-center">
+        <button id="tab-chinese" onclick="switchSubject('chinese')" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-pen-nib"></i> 中文科 (Chinese)
         </button>
-        <button id="tab-Maths" onclick="switchSubject('Maths')" class="flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white">
-          <i class="fa-solid fa-calculator"></i> 數學科
+        <button id="tab-english" onclick="switchSubject('english')" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-book"></i> 英文科 (English)
         </button>
-        <button id="tab-Chinese" onclick="switchSubject('Chinese')" class="flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white">
-          <i class="fa-solid fa-pen-nib"></i> 中文科
+        <button id="tab-maths" onclick="switchSubject('maths')" class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-calculator"></i> 數學科 (Maths)
         </button>
       </div>
 
-      <!-- 標題與計時 -->
-      <div class="flex items-center justify-between gap-3 mb-2 flex-wrap">
+      <!-- Header Section: Title & 20-Minute Countdown Clock -->
+      <div class="flex items-center justify-between gap-3 mb-5 flex-wrap border-b border-[#222631] pb-4">
         <div>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1f242d] text-slate-300 border border-[#2d3442]">
-            <i class="fa-solid fa-graduation-cap text-indigo-400 text-[11px]"></i>
-            HK SSPA Simulation (香港小五呈分試)
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#1d222d] text-blue-400 border border-[#2b3344]">
+            <i class="fa-solid fa-graduation-cap text-xs"></i> 香港小五呈分試高頻失分專項
           </span>
-          <h1 id="subject-title" class="text-xl sm:text-2xl font-bold text-white mt-2 tracking-tight">
-            英文科模擬試卷 (20題)
+          <h1 id="exam-heading" class="text-xl sm:text-2xl font-extrabold text-white mt-2 tracking-tight">
+            小五中文科呈分模擬卷 (20題單選)
           </h1>
         </div>
 
         <div class="flex items-center gap-2">
-          <div class="flex items-center gap-2 bg-[#1b1f27] border border-[#2b323f] px-3.5 py-1.5 rounded-full text-slate-200">
+          <div class="flex items-center gap-2 bg-[#1a1e27] border border-[#2a3242] px-4 py-2 rounded-2xl">
             <i class="fa-regular fa-clock text-blue-400 text-sm"></i>
-            <span id="timer-text" class="font-mono text-base font-bold tracking-wider text-white">20:00</span>
+            <span id="timer-text" class="font-mono text-lg font-bold tracking-wider text-white">20:00</span>
           </div>
-          <button id="pause-btn" onclick="togglePause()" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#212732] hover:bg-[#2c3444] text-slate-300 border border-[#2f3747] transition">
-            <span id="pause-text">Pause</span>
+          <button id="pause-btn" onclick="togglePause()" class="px-4 py-2 rounded-2xl text-xs font-semibold bg-[#1f2430] hover:bg-[#293040] text-slate-300 border border-[#2e3647] transition">
+            <span id="pause-text">暫停</span>
           </button>
         </div>
       </div>
 
-      <!-- 題目調色盤 (1–20) -->
-      <div class="mt-5 bg-[#1a1d24] border border-[#262b37] rounded-2xl p-4 sm:p-5">
+      <!-- Question Palette (1–20) -->
+      <div class="bg-[#171a21] border border-[#242935] rounded-2xl p-4 sm:p-5 mb-6">
         <div class="flex items-center justify-between text-xs font-semibold mb-3">
-          <span class="text-slate-400 uppercase tracking-wider">QUESTION PALETTE (1–20)</span>
-          <span id="palette-count" class="text-slate-400">0/20 answered</span>
+          <span class="text-slate-400 uppercase tracking-wider">答題卡 (QUESTION PALETTE 1–20)</span>
+          <div class="flex items-center gap-3">
+            <span class="hidden sm:inline-flex items-center gap-1 text-[11px] text-slate-400"><span class="w-2.5 h-2.5 rounded-sm bg-blue-600/40 border border-blue-500 inline-block"></span> 已答</span>
+            <span class="hidden sm:inline-flex items-center gap-1 text-[11px] text-slate-400"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500/30 border border-amber-500 inline-block"></span> 待覆核</span>
+            <span id="palette-count" class="text-blue-400 font-mono">0 / 20 已答</span>
+          </div>
         </div>
         <div id="palette-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2"></div>
       </div>
 
-      <!-- 題目區 -->
-      <div id="question-area" class="mt-6">
-        <div class="flex items-center justify-between gap-3 mb-4">
+      <!-- Question Area -->
+      <div id="question-area" class="relative">
+        <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
           <div class="flex items-center gap-2 flex-wrap">
-            <span id="current-item-label" class="text-base sm:text-lg font-bold text-white">Item 1 of 20</span>
-            <span id="topic-tag" class="text-xs font-mono px-2.5 py-0.5 rounded-md bg-[#1f242e] text-slate-400 border border-[#2b323f]">
-              EDB Syllabus
+            <span id="item-number-tag" class="text-base sm:text-lg font-bold text-white">第 1 題 / 共 20 題</span>
+            <span id="category-tag" class="text-xs font-mono px-2.5 py-0.5 rounded-md bg-[#1c212b] text-indigo-300 border border-[#2b3344]">
+              考點標籤
             </span>
           </div>
-          <button id="flag-btn" onclick="toggleFlag()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#1a1e26] hover:bg-[#232936] text-slate-300 border border-[#2b3342] transition">
+          <button id="flag-btn" onclick="toggleFlag()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#191d26] hover:bg-[#222835] text-slate-300 border border-[#2a3140] transition">
             <i class="fa-regular fa-flag text-xs"></i>
-            <span id="flag-text">Flag for Review</span>
+            <span id="flag-text">標記覆核</span>
           </button>
         </div>
 
-        <div class="bg-[#191c23] border border-[#252a35] p-4 sm:p-5 rounded-2xl mb-5">
-          <p id="question-text" class="text-sm sm:text-base leading-relaxed text-slate-200 font-medium whitespace-pre-line"></p>
+        <!-- Question Text -->
+        <div class="bg-[#171920] border border-[#242834] p-4 sm:p-5 rounded-2xl mb-5">
+          <p id="question-prompt" class="text-sm sm:text-base leading-relaxed text-slate-200 font-medium whitespace-pre-line"></p>
         </div>
 
-        <div id="options-list" class="space-y-3"></div>
+        <!-- Multiple Choice Options -->
+        <div id="options-container" class="space-y-3"></div>
 
-        <!-- 暫停遮罩 -->
-        <div id="pause-overlay" class="hidden absolute inset-0 bg-[#0d0f12]/90 backdrop-blur-sm rounded-3xl z-30 flex-col items-center justify-center text-center p-6">
-          <div class="w-16 h-16 rounded-2xl bg-[#1e2430] border border-[#2d3648] flex items-center justify-center text-2xl text-blue-400 mb-4">
+        <!-- Pause Overlay -->
+        <div id="pause-overlay" class="hidden absolute inset-0 bg-[#0b0d11]/95 backdrop-blur-md rounded-2xl z-20 flex flex-col items-center justify-center text-center p-6">
+          <div class="w-14 h-14 rounded-2xl bg-[#1b202b] border border-[#2c3547] flex items-center justify-center text-2xl text-blue-400 mb-4">
             <i class="fa-solid fa-pause"></i>
           </div>
-          <h3 class="text-xl font-bold text-white mb-2">測驗已暫停</h3>
-          <p class="text-slate-400 text-sm max-w-sm mb-6">計時已停止。點擊繼續按鈕回到作答畫面。</p>
-          <button onclick="togglePause()" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition">
-            Resume Exam (繼續)
+          <h3 class="text-xl font-bold text-white mb-2">測驗計時已暫停</h3>
+          <p class="text-slate-400 text-xs sm:text-sm max-w-sm mb-5">倒數計時器已凍結。點擊下方按鈕恢復作答。</p>
+          <button onclick="togglePause()" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition shadow-lg">
+            繼續作答 (Resume)
           </button>
         </div>
       </div>
 
-      <!-- 控制按鈕 -->
-      <div class="flex items-center justify-between gap-3 mt-8 pt-5 border-t border-[#232731]">
-        <button id="prev-btn" onclick="navigate(-1)" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-[#1c2029] hover:bg-[#262c3a] text-slate-300 border border-[#2d3546] transition disabled:opacity-30">
-          Previous
+      <!-- Bottom Navigation & Submit -->
+      <div class="flex items-center justify-between gap-3 mt-8 pt-5 border-t border-[#222631]">
+        <button id="prev-btn" onclick="navigate(-1)" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-[#1b1f28] hover:bg-[#242a37] text-slate-300 border border-[#2b3342] transition disabled:opacity-30">
+          上一題
         </button>
-        <button id="next-btn" onclick="navigate(1)" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-[#1c2029] hover:bg-[#262c3a] text-slate-300 border border-[#2d3546] transition">
-          Next
+        <button id="next-btn" onclick="navigate(1)" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-[#1b1f28] hover:bg-[#242a37] text-slate-300 border border-[#2b3342] transition">
+          下一題
         </button>
-        <button onclick="confirmSubmission()" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#1f2737] hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/40 transition">
-          Submit Exam
+        <button onclick="confirmSubmit()" class="px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-blue-600 hover:bg-blue-500 text-white transition shadow-lg">
+          交卷批改 (Submit)
         </button>
       </div>
 
     </div>
 
-    <!-- 結果報告頁面 -->
+    <!-- Results & Detailed Analysis View -->
     <div id="result-view" class="hidden flex-col gap-6">
-      <div class="bg-[#15171c] border border-[#232731] rounded-3xl p-6 sm:p-8 text-center shadow-2xl">
+
+      <!-- Summary Score Card -->
+      <div class="bg-[#13151b] border border-[#222631] rounded-3xl p-6 sm:p-8 text-center shadow-2xl">
         <div class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-2xl mb-4 bg-blue-600/20 text-blue-400 border border-blue-500/30">
           <i class="fa-solid fa-award"></i>
         </div>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-2">測驗成果 (Exam Results)</h2>
-        <p class="text-slate-400 text-xs sm:text-sm mb-6">呈分試答題分析報告及預計分級：</p>
+        <h2 class="text-2xl sm:text-3xl font-black text-white mb-2">呈分試模擬評估報告</h2>
+        <p id="res-subject-label" class="text-slate-400 text-xs sm:text-sm mb-6">小五中文科 成績統計</p>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-xl mx-auto mb-6 text-left">
-          <div class="bg-[#1a1d24] border border-[#262b37] p-3.5 rounded-2xl">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mb-6 text-left">
+          <div class="bg-[#181b22] border border-[#252a36] p-4 rounded-2xl">
             <span class="text-[11px] font-bold uppercase text-slate-400">總得分 (Score)</span>
-            <div id="res-score" class="text-xl sm:text-2xl font-black text-white mt-1">-- / 20</div>
+            <div id="res-score" class="text-2xl font-black text-white mt-1">-- / 20</div>
           </div>
-          <div class="bg-[#1a1d24] border border-[#262b37] p-3.5 rounded-2xl">
+          <div class="bg-[#181b22] border border-[#252a36] p-4 rounded-2xl">
             <span class="text-[11px] font-bold uppercase text-slate-400">正確率 (Accuracy)</span>
-            <div id="res-accuracy" class="text-xl sm:text-2xl font-black text-emerald-400 mt-1">--%</div>
+            <div id="res-accuracy" class="text-2xl font-black text-emerald-400 mt-1">--%</div>
           </div>
-          <div class="bg-[#1a1d24] border border-[#262b37] p-3.5 rounded-2xl">
-            <span class="text-[11px] font-bold uppercase text-slate-400">答題時間 (Time)</span>
-            <div id="res-time" class="text-xl sm:text-2xl font-black text-blue-400 mt-1">--:--</div>
+          <div class="bg-[#181b22] border border-[#252a36] p-4 rounded-2xl">
+            <span class="text-[11px] font-bold uppercase text-slate-400">作答用時 (Time)</span>
+            <div id="res-time" class="text-2xl font-black text-blue-400 mt-1">--:--</div>
           </div>
-          <div class="bg-[#1a1d24] border border-[#262b37] p-3.5 rounded-2xl">
-            <span class="text-[11px] font-bold uppercase text-slate-400">呈分試評級 (Band)</span>
-            <div id="res-band" class="text-xl sm:text-2xl font-black text-amber-400 mt-1">Band 1</div>
+          <div class="bg-[#181b22] border border-[#252a36] p-4 rounded-2xl">
+            <span class="text-[11px] font-bold uppercase text-slate-400">呈分表現評估</span>
+            <div id="res-band" class="text-2xl font-black text-amber-400 mt-1">Band 1</div>
           </div>
         </div>
 
-        <button onclick="retakeSubject()" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition">
-          <i class="fa-solid fa-rotate-right mr-1.5"></i> 重新作答本卷
-        </button>
+        <div class="flex items-center justify-center gap-3 flex-wrap">
+          <button onclick="resetCurrentExam()" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition shadow-lg">
+            <i class="fa-solid fa-rotate-right mr-1.5"></i> 重新練習本科
+          </button>
+          <button onclick="switchToNextSubject()" class="px-6 py-2.5 rounded-xl bg-[#1f2430] hover:bg-[#2a3140] text-slate-200 font-semibold text-sm transition border border-[#2e3647]">
+            <i class="fa-solid fa-forward mr-1.5"></i> 切換下一科練習
+          </button>
+        </div>
       </div>
 
-      <div class="bg-[#15171c] border border-[#232731] rounded-3xl p-6 sm:p-8 shadow-2xl">
-        <h3 class="text-lg font-bold text-white mb-5 flex items-center gap-2">
-          <i class="fa-solid fa-list-check text-blue-400"></i> 逐題剖析與失分陷阱
-        </h3>
-        <div id="review-cards" class="space-y-4"></div>
+      <!-- Detailed Explanations -->
+      <div class="bg-[#13151b] border border-[#222631] rounded-3xl p-6 sm:p-8 shadow-2xl">
+        <div class="flex items-center justify-between mb-5 flex-wrap gap-2">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-magnifying-glass-chart text-blue-400"></i> 逐題批改與呈分試失分陷阱解析
+          </h3>
+          <button id="filter-wrong-btn" onclick="toggleWrongOnly()" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#1a1e27] hover:bg-[#242a37] text-slate-300 border border-[#2c3444] transition">
+            只看錯題 (Show Mistakes Only)
+          </button>
+        </div>
+        <div id="review-cards-list" class="space-y-4"></div>
       </div>
+
     </div>
 
   </main>
 
   <script>
-    // 預設內建題目數據（保證本地雙擊直接運行，不受跨網域安全阻擋）
-    const fallbackDB = {
-      English: [
-        { id: 1, category: "Subject-Verb Agreement", question: "Neither Peter nor his brothers ________ at home when Mum came back from the market.", options: ["is", "are", "was", "were"], answer: 3, explanation: "「Neither... nor...」動詞依隨靠近的主語。靠近的主語是「brothers」（複數），配合過去時間「came back」，故用 were。" },
-        { id: 2, category: "Question Tags", question: "Miss Lee drank a cup of warm tea just now, ________?", options: ["doesn't she", "didn't she", "wasn't she", "did she"], answer: 1, explanation: "前半句 drank 是過去式肯定句，附加問句必須用過去式否定助動詞 didn't，主語用代名詞 she。" },
-        { id: 3, category: "Past Continuous Tense", question: "While my sister ________ her homework, the telephone suddenly rang.", options: ["is doing", "did", "was doing", "does"], answer: 2, explanation: "While 連接過去進行中的動作（was doing），被另一個突發短動作（rang）打斷。" },
-        { id: 4, category: "Prepositions", question: "My best friend is very keen ________ playing table tennis after school.", options: ["at", "on", "in", "with"], answer: 1, explanation: "固定介詞搭配：keen on + 名詞/動名詞，解作「熱衷於……」。" },
-        { id: 5, category: "Connectives", question: "You will not catch the school bus ________ you get up immediately.", options: ["unless", "although", "because", "since"], answer: 0, explanation: "unless 相當於 if not（除非）。全句意思是「除非你立即起床，否則你趕不上校巴」。" },
-        { id: 6, category: "Nouns & Plurals", question: "The chef sliced three ________ of fresh bread for our breakfast.", options: ["loaf", "loafs", "loaves", "pieces of loaf"], answer: 2, explanation: "名詞以 -f 結尾，複數去 f 變 ves：loaf 變成 loaves。" },
-        { id: 7, category: "Proofreading", question: "Find the mistake: \"Uncle David has lived (A) in Shatin (B) since (C) eight years (D).\"", options: ["has lived", "in", "since", "eight years"], answer: 2, explanation: "eight years 是一段時間長度，應用 for 代替 since。" },
-        { id: 8, category: "Comparatives", question: "Tim is much ________ at drawing cartoons than his elder brother.", options: ["good", "better", "best", "more good"], answer: 1, explanation: "有比較詞 than，需用比較級 better，前面的 much 用作加強程度。" },
-        { id: 9, category: "Prepositions", question: "The heavy thunderstorm prevented us ________ going hiking in Sai Kung.", options: ["to", "from", "for", "with"], answer: 1, explanation: "固定搭配：prevent someone from doing something（阻止某人做某事）。" },
-        { id: 10, category: "Future Intention", question: "Look at those dark clouds! It ________ rain very soon.", options: ["will be", "is going to", "has been", "would"], answer: 1, explanation: "眼前有明確跡象（dark clouds）顯示將會發生的事情，優先使用 is going to。" },
-        { id: 11, category: "Indefinite Pronouns", question: "Everyone in Primary 5 ________ excited about the school picnic next Friday.", options: ["is", "are", "were", "be"], answer: 0, explanation: "Everyone 文法上視為單數，動詞配 is。" },
-        { id: 12, category: "Possessives", question: "The cute puppy wagged ________ tail when I gave it a biscuit.", options: ["it's", "its", "its'", "it"], answer: 1, explanation: "「它的」物主代名詞為 its，沒有撇號；it's 是 it is 的縮寫。" },
-        { id: 13, category: "Negative Purpose", question: "We packed our school bags early ________ forget our homework tomorrow.", options: ["in order to", "so that", "so as not to", "because of"], answer: 2, explanation: "表否定目的「為免忘記……」，接原形動詞用 so as not to。" },
-        { id: 14, category: "Reflexive Pronouns", question: "The two girls made the model spaceship all by ________.", options: ["theirselves", "themselves", "themself", "them"], answer: 1, explanation: "第三人稱複數反身代名詞為 themselves，沒有 theirselves 這個字。" },
-        { id: 15, category: "Proofreading", question: "Find the error: \"He didn't (A) bought (B) any (C) snacks (D) in the tuck shop.\"", options: ["didn't", "bought", "any", "snacks"], answer: 1, explanation: "在助動詞 didn't 後面，動詞必須回復原形 buy。" },
-        { id: 16, category: "Phrasal Verbs", question: "Please remember to turn ________ the lights before leaving the classroom.", options: ["on", "off", "up", "down"], answer: 1, explanation: "離開房間時「關掉」電燈用 turn off。" },
-        { id: 17, category: "Quantifiers", question: "The math puzzle was very hard, so ________ students could solve it.", options: ["few", "a few", "little", "a little"], answer: 0, explanation: "students 是可數名詞，且強調「幾乎沒有人做到」（帶否定意思），用 few。" },
-        { id: 18, category: "Universal Truth", question: "Our teacher told us that water ________ at 100 degrees Celsius.", options: ["boil", "boiled", "boils", "is boiling"], answer: 2, explanation: "科學常理與客觀事實永遠使用一般現在式，water 是不可數單數名詞，動詞加 s（boils）。" },
-        { id: 19, category: "Tenses & Since", question: "Mary and Cindy ________ good friends since they joined the swimming team.", options: ["are", "were", "have been", "had been"], answer: 2, explanation: "由過去持續到現在（since），主句使用現在完成式 have been。" },
-        { id: 20, category: "Preferences", question: "I would rather drink milk ________ drink soft drinks.", options: ["than", "then", "to", "instead"], answer: 0, explanation: "句型：would rather do something than do something（寧願做……也不願做……）。" }
+    // 香港小五呈分試高頻失分題庫（中、英、數各 20 題）
+    const examDatabase = {
+      chinese: [
+        {
+          id: 1,
+          category: "成語錯別字辨識",
+          question: "下列句子中，哪一個成語的用字完全正確？",
+          options: [
+            "他沒有真才實學，在樂團裡只是濫竽充數。",
+            "看見精彩的魔術表演，觀眾們都嘆為觀直。",
+            "考試臨近，他迫不急待地想知道成績。",
+            "大家應該各抒己見，切勿隨聲附合。"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：同音別字】\nA.「濫竽充數」完全正確（竽：古代樂器）。\nB. 應作「嘆為觀止」（讚美事物好到了極點）。\nC. 應作「迫不及待」（「及」是趕得上的意思，非「急」）。\nD. 應作「隨聲附和」（「和」讀 hè，意為附和跟從）。"
+        },
+        {
+          id: 2,
+          category: "關聯詞精準搭配",
+          question: "「弟弟________把零用錢全部花光買零食，________願意留下一部分作慈善捐款。」橫線上最適合填入哪一組關聯詞？",
+          options: [
+            "寧可……也不……",
+            "與其……不如……",
+            "即使……也……",
+            "雖然……但是……"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：選擇關係邏輯】\n句子在比較兩種做法的優劣並傾向後者（捐款），標準搭配為「與其……不如……」。若用「寧可……也不……」，後者應是不願做的事（例：寧可餓著，也不吃來歷不明的食物）。"
+        },
+        {
+          id: 3,
+          category: "病句辨析",
+          question: "下列哪一句「沒有」語病？",
+          options: [
+            "通過這次全級演講比賽，使同學們的口才有了顯著進步。",
+            "春天的嘉道理農場是個百花盛開的美麗季節。",
+            "博物館展出了兩千多年前新出土的大量珍貴文物。",
+            "無論天氣多麼惡劣，搜救人員依然堅守在搜救前線。"
+          ],
+          answer: 3,
+          explanation: "【失分陷阱：主語殘缺與主賓不配】\nA. 介詞濫用導致主語殘缺，應刪去「通過」或「使」。\nB. 主賓搭配不當，「農場」是地方，不是「季節」。\nC. 定語語序不當，應為「新出土的兩千多年前的大量珍貴文物」。\nD. 條件關聯詞「無論……依然……」搭配正確，語意通順。"
+        },
+        {
+          id: 4,
+          category: "古詩修辭（借代）",
+          question: "「烽火連三月，家書抵萬金。」詩中的「烽火」運用了哪種修辭手法，借指甚麼？",
+          options: [
+            "比喻，借指夜間照明的火把",
+            "借代，借指戰爭或軍事戰亂",
+            "擬人，借指軍隊奔馳的英姿",
+            "誇張，借指春天山火蔓延"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：比喻與借代混淆】\n比喻需要本體與喻體同時存在或有相似性；古代邊防遇敵時點燃狼煙報警，此處以「烽火」這項具體特徵直接代指「戰爭」，屬於借代修辭。"
+        },
+        {
+          id: 5,
+          category: "詞語感情色彩",
+          question: "下列句子中，哪一個加引號的詞語帶有「褒義」（讚揚）色彩？",
+          options: [
+            "狐狸在獵人面前耍弄牠那「狡黠」的伎倆。",
+            "面對窮兇極惡的歹徒，警員表現得十分「果敢」。",
+            "他總是喜歡在同學面前「吹噓」自己的家境多麼富裕。",
+            "這個奸商經常「處心積慮」地謀取暴利。"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：誤解詞義感情色彩】\n「果敢」指果斷勇敢，用於讚美正義行為，為褒義詞；「狡黠」（詭詐）、「吹噓」（誇大吹牛）、「處心積慮」（千方百計謀劃壞事）均屬貶義詞。"
+        },
+        {
+          id: 6,
+          category: "標點符號規範",
+          question: "下列各句中，省略號（……）使用最恰當的是：",
+          options: [
+            "書架上放滿了《三國演義》、《水滸傳》、《西遊記》……等古典小說。",
+            "小明結結巴巴地說：「我……我真的……不知道這件事。」",
+            "這座花園裡種植了玫瑰、百合、菊花……等等花卉。",
+            "請你列舉出三個以上的中國傳統節日……"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：省略號與「等」字重複】\n省略號本身已包含「等、等等」的意思，不可與「等」並列使用（A、C 錯誤）。D 選項要求明確列出三個，不應用省略號。B 選項準確表現說話斷斷續續的情態。"
+        },
+        {
+          id: 7,
+          category: "近義詞精準搭配",
+          question: "選出最適當的詞語填入橫線：「天文台發出紅色暴雨警告信號，教育局宣佈全港學校上午________上課。」",
+          options: [
+            "中止",
+            "終止",
+            "停止",
+            "廢除"
+          ],
+          answer: 2,
+          explanation: "【失分陷阱：近義動詞辨析】\n「停止上課」為標準常規搭配。「中止」指中途暫時停頓；「終止」指徹底結束不再恢復；「廢除」多用於法令、制度或條約。"
+        },
+        {
+          id: 8,
+          category: "句式轉換（反問改陳述）",
+          question: "將反問句「難道我們不應該為保護地球環境盡一份力嗎？」改為陳述句，最貼切原意的是：",
+          options: [
+            "我們應該為保護地球環境盡一份力。",
+            "我們不應該為保護地球環境盡一份力。",
+            "我們難道要為保護地球環境盡一份力？",
+            "我們是否該為保護地球環境盡一份力呢？"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：雙重否定轉換漏掉否定詞】\n反問句「難道不……嗎？」表達的是肯定的意思。轉換為陳述句時，需去掉反問詞「難道、嗎」以及否定詞「不」，並將問號改為句號。"
+        },
+        {
+          id: 9,
+          category: "多音多義字辨讀",
+          question: "下列詞語中，加引號字的讀音與「塞」翁失馬的「塞」相同的是：",
+          options: [
+            "交通堵「塞」",
+            "邊「塞」要壘",
+            "軟木瓶「塞」",
+            "閉目「塞」聽"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：一字多音】\n「塞翁失馬」的「塞」讀 sài（邊境險要之處）。A、D 讀 sè（堵塞、閉塞）；C 讀 sāi（名詞瓶塞）。只有 B「邊塞」讀 sài。"
+        },
+        {
+          id: 10,
+          category: "言外之意與反語理解",
+          question: "媽媽對沉迷電子遊戲的哥哥說：「你再這麼『勤奮』地玩下去，視力表上的符號都要認不出了。」媽媽這句話的言外之意是：",
+          options: [
+            "稱讚哥哥玩遊戲專注執著",
+            "諷刺並警告哥哥過度玩遊戲將嚴重傷害眼睛",
+            "鼓勵哥哥換更大的螢幕玩遊戲",
+            "希望哥哥每天認真檢查視力"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：字面意思與反語區分】\n「勤奮」在此處加上引號構成反語修辭，媽媽透過誇張後果（認不出視力表符號），實際上是在責備並警告其沉迷遊戲損害視力。"
+        },
+        {
+          id: 11,
+          category: "古詩文哲理理解",
+          question: "「欲窮千里目，更上一層樓。」這句經典唐詩所蘊含的哲理是：",
+          options: [
+            "只有站得更高，才能看得更遠；引申想要取得更大成就，必須付出更多努力。",
+            "高處的風景遠比低處美麗，住高樓比住平房舒適。",
+            "登高望遠時一定要小心階梯，防範失足危險。",
+            "千里之外的景象非常微小，必須藉助望遠鏡觀察。"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：僅停留在字面翻譯】\n王之渙《登鸛雀樓》後兩句將寫景昇華為人生哲理：站得高方能望得遠，比喻不斷進取、精益求精的精神。"
+        },
+        {
+          id: 12,
+          category: "文言與成語字義",
+          question: "在「白手起家」這個成語中，「白」字的意思是：",
+          options: [
+            "雪白、白色",
+            "沒有任何基礎或憑藉",
+            "徒然、平白地",
+            "清楚、明白"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：古今字義演變】\n「白手起家」形容在毫無基礎、條件十分艱苦的情況下創立起一番事業。「白手」即赤手空拳、無所依憑之意。"
+        },
+        {
+          id: 13,
+          category: "修辭手法辨析",
+          question: "「微風拂過，湖邊的金絲垂柳梳理著柔順的長髮，在陽光下翩翩起舞。」這句話運用了：",
+          options: [
+            "比喻",
+            "擬人",
+            "排比",
+            "對偶"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：誤判為比喻】\n句中沒有出現「像、彷彿」等比喻詞，也沒有把柳樹比作另一樣具體事物，而是賦予柳樹人類特有的動作「梳理長髮」、「翩翩起舞」，屬於擬人。"
+        },
+        {
+          id: 14,
+          category: "遞進關係關聯詞",
+          question: "「這座跨海大橋________宏偉壯觀，________能抵禦十六級強烈颱風。」橫線上應填入：",
+          options: [
+            "雖然……但是……",
+            "不僅……而且……",
+            "因為……所以……",
+            "如果……就……"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：轉折與遞進混淆】\n「宏偉壯觀」與「抵禦強風」兩者都是正面優點，且後者程度更深一層，屬於遞進關係，標準搭配為「不僅……而且……」。"
+        },
+        {
+          id: 15,
+          category: "語段意象銜接",
+          question: "填入橫線最通順的一句是：「讀書是一座燈塔，________，指引我們駛向真理的彼岸。」",
+          options: [
+            "它穿透知識的黑夜",
+            "它把海浪拍擊得粉碎",
+            "海灘上的礁石異常鋒利",
+            "船長握緊了手中的舵輪"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：喻體功能不匹配】\n前文把讀書比作「燈塔」，燈塔的核心功能是發光驅散黑暗、指引方向，因此「穿透知識的黑夜」在邏輯與意象上最連貫。"
+        },
+        {
+          id: 16,
+          category: "成語運用情境",
+          question: "下列哪一個句子中的成語運用「不恰當」？",
+          options: [
+            "李小龍在武術界的成就卓著，在國際上早已家喻戶曉。",
+            "這棟老宅年久失修，每逢暴風雨夜都讓人提心吊膽。",
+            "他在這次運動會上屢破紀錄，真可謂班門弄斧。",
+            "經過幾代科學家的潛心鑽研，這項工程終於大功告成。"
+          ],
+          answer: 2,
+          explanation: "【失分陷阱：成語褒貶誤用】\n「班門弄斧」比喻在行家面前賣弄本領，含有自不量力的貶義。稱讚破紀錄的優秀運動員不能使用該詞。"
+        },
+        {
+          id: 17,
+          category: "粵語口語轉書面語",
+          question: "將粵語口語「佢成日口花花，講嘅嘢唔好信。」轉為規範書面語，最恰當的是：",
+          options: [
+            "他整天花言巧語，說的話切莫輕信。",
+            "他總是嘴巴很花，說的東西不要相信。",
+            "他每日說話如花，所講之事不可信。",
+            "他整日口多說話，你千萬別去聽他。"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：逐字直譯口語】\n「口花花」對應規範成語「花言巧語」；「成日」對應「整天」；「唔好信」對應「切莫輕信」，A 最合乎書面語規範。"
+        },
+        {
+          id: 18,
+          category: "句子主幹提煉",
+          question: "提煉「聰明能幹的陳工程師成功主持設計了世界級的大跨度鋼橋樑」的句子主幹：",
+          options: [
+            "陳工程師主持設計橋樑",
+            "陳工程師成功世界級",
+            "工程師跨度鋼橋樑",
+            "聰明能幹主持設計"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：保留了修飾定語】\n縮句提煉主幹時，必須刪去定語（聰明能幹的、世界級的大跨度鋼）和狀語（成功），只保留「主語 + 謂語 + 賓語」：陳工程師主持設計橋樑。"
+        },
+        {
+          id: 19,
+          category: "呈分試高頻錯別字",
+          question: "下列各組詞語中，完全「沒有」錯別字的一組是：",
+          options: [
+            "名副其實 / 不逕而走 / 刻苦耐勞",
+            "按部就班 / 再接再厲 / 迫不及待",
+            "墨守成規 / 走頭無路 / 走馬看花",
+            "情不自盡 / 蛛絲馬跡 / 循規蹈矩"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：易混形近字】\nA.「不逕而走」應為「不脛而走」（脛：小腿）。\nB. 全部正確（注意「按部就班」非「步」；「再接再厲」非「勵」）。\nC.「走頭無路」應為「走投無路」（投奔之意）。\nD.「情不自盡」應為「情不自禁」（禁：抑制）。"
+        },
+        {
+          id: 20,
+          category: "成語典故與字義",
+          question: "「這本書我看了一遍又一遍，真是手不釋卷。」句中的「手不釋卷」形容：",
+          options: [
+            "這本書紙質滑膩拿不穩",
+            "書本非常厚重無法放下",
+            "讀書十分勤勉，喜愛到了放不下的地步",
+            "讀者視力不佳需要一直拿著近看"
+          ],
+          answer: 2,
+          explanation: "【失分陷阱：望文生義】\n「釋」是放下的意思，「卷」指書卷。手裡捨不得放下書本，形容勤奮好學或對書籍極度喜愛。"
+        }
       ],
-      Maths: [
-        { id: 1, category: "分數乘法", question: "計算：3/4 × 2/9 = ？（請化至最簡分數）", options: ["1/6", "5/13", "6/36", "1/12"], answer: 0, explanation: "分子相乘 3×2=6，分母相乘 4×9=36。約簡：6/36 = 1/6。" },
-        { id: 2, category: "小數四則應用", question: "一盒彩色筆售 23.5 元，買 3 盒付 100 元，應找回多少元？", options: ["29.5 元", "30.5 元", "70.5 元", "28.5 元"], answer: 0, explanation: "3 盒總價 = 23.5 × 3 = 70.5 元。應找回 = 100 - 70.5 = 29.5 元。" },
-        { id: 3, category: "簡易方程", question: "解方程：4y + 12 = 36，y 的值是多少？", options: ["6", "8", "12", "7"], answer: 0, explanation: "4y = 36 - 12 = 24，y = 24 ÷ 4 = 6。" },
-        { id: 4, category: "平行四邊形面積", question: "平行四邊形的底是 15 cm，高是 8 cm，它的面積是多少 cm²？", options: ["60 cm²", "120 cm²", "240 cm²", "46 cm²"], answer: 1, explanation: "平行四邊形面積 = 底 × 高 = 15 × 8 = 120 cm²。" },
-        { id: 5, category: "分數應用題", question: "一瓶牛奶有 1 又 1/2 公升，弟弟喝了 2/3 公升，還剩下多少公升？", options: ["5/6 公升", "1/2 公升", "1/6 公升", "1 又 1/6 公升"], answer: 0, explanation: "1 又 1/2 - 2/3 = 3/2 - 2/3 = 9/6 - 4/6 = 5/6 公升。" },
-        { id: 6, category: "長方體體積", question: "長方體紙盒長 12 cm、闊 10 cm、高 5 cm，體積是多少 cm³？", options: ["600 cm³", "120 cm³", "300 cm³", "60 cm³"], answer: 0, explanation: "長方體體積 = 長 × 闊 × 高 = 12 × 10 × 5 = 600 cm³。" },
-        { id: 7, category: "百分數化分數", question: "把 45% 化為最簡分數，結果是多少？", options: ["9/20", "45/100", "9/10", "4/5"], answer: 0, explanation: "45% = 45/100，分子分母同除以 5，化簡為 9/20。" },
-        { id: 8, category: "梯形面積", question: "梯形上底 7 cm，下底 13 cm，高 6 cm，面積是多少 cm²？", options: ["60 cm²", "120 cm²", "40 cm²", "80 cm²"], answer: 0, explanation: "梯形面積 = (上底 + 下底) × 高 ÷ 2 = (7 + 13) × 6 ÷ 2 = 20 × 6 ÷ 2 = 60 cm²。" },
-        { id: 9, category: "分數除法", question: "計算：4/5 ÷ 2/3 = ？", options: ["1 又 1/5", "6/5", "8/15", "以上 A 及 B 皆對"], answer: 3, explanation: "4/5 ÷ 2/3 = 4/5 × 3/2 = 12/10 = 6/5 = 1 又 1/5。A 和 B 都代表正確數值。" },
-        { id: 10, category: "簡易方程列式", question: "志明有 x 枝鉛筆，小華的鉛筆比志明的 3 倍多 2 枝。若小華有 20 枝，方程是：", options: ["3x + 2 = 20", "3x - 2 = 20", "x/3 + 2 = 20", "3(x + 2) = 20"], answer: 0, explanation: "志明的 3 倍是 3x，多 2 枝即 3x + 2，等於小華的 20 枝。" },
-        { id: 11, category: "小數除法", question: "一條絲帶長 7.2 米，每 0.8 米剪成一條彩帶，共可剪成多少條？", options: ["9 條", "90 條", "0.9 條", "8 條"], answer: 0, explanation: "7.2 ÷ 0.8 = 72 ÷ 8 = 9 條。" },
-        { id: 12, category: "三角形面積", question: "直角三角形兩條直角邊分別是 8 cm 和 15 cm，它的面積是多少 cm²？", options: ["60 cm²", "120 cm²", "30 cm²", "23 cm²"], answer: 0, explanation: "直角三角形面積 = 底 × 高 ÷ 2 = 8 × 15 ÷ 2 = 60 cm²。" },
-        { id: 13, category: "平均數概念", question: "家聰四次英文默書成績分別是 82、90、88、100，平均分是多少？", options: ["90 分", "88 分", "92 分", "89 分"], answer: 0, explanation: "總分 = 82 + 90 + 88 + 100 = 360 分。平均分 = 360 ÷ 4 = 90 分。" },
-        { id: 14, category: "分數加減混合", question: "計算：2 又 1/4 - 1 又 1/3 = ？", options: ["11/12", "1 又 1/12", "5/12", "7/12"], answer: 0, explanation: "通分母為 12：2 又 3/12 - 1 又 4/12 = 1 又 15/12 - 1 又 4/12 = 11/12。" },
-        { id: 15, category: "正方形周界與面積", question: "一個正方形的周界是 36 cm，它的面積是多少 cm²？", options: ["81 cm²", "72 cm²", "36 cm²", "144 cm²"], answer: 0, explanation: "邊長 = 36 ÷ 4 = 9 cm。面積 = 9 × 9 = 81 cm²。" },
-        { id: 16, category: "單位換算", question: "3.25 公升等於多少毫升 (mL)？", options: ["3250 mL", "325 mL", "3025 mL", "32500 mL"], answer: 0, explanation: "1 公升 = 1000 毫升。3.25 × 1000 = 3250 mL。" },
-        { id: 17, category: "工作工程題", question: "工班每天修築路軌 2/7 公里，修了 3 天，共修築路軌多少公里？", options: ["6/7 公里", "5/7 公里", "1 公里", "6/21 公里"], answer: 0, explanation: "2/7 × 3 = 6/7 公里。" },
-        { id: 18, category: "代數式求值", question: "原子筆每枝 m 元，筆記簿每本 15 元。買 4 枝筆和 1 本筆記簿需付：", options: ["4m + 15 元", "m + 15 元", "4(m + 15) 元", "60m 元"], answer: 0, explanation: "4 枝筆價錢為 4m 元，加筆記簿 15 元，總計 4m + 15 元。" },
-        { id: 19, category: "複合圖形", question: "長方形長 12 cm、闊 8 cm，剪去邊長 4 cm 的正方形，剩下部分面積是多少？", options: ["80 cm²", "96 cm²", "16 cm²", "84 cm²"], answer: 0, explanation: "長方形面積 = 12 × 8 = 96 cm²。正方形 = 4 × 4 = 16 cm²。剩餘 = 96 - 16 = 80 cm²。" },
-        { id: 20, category: "速度基本應用", question: "私家車以時速 80 公里行駛，半小時（30分鐘）行駛了多少公里？", options: ["40 公里", "80 公里", "20 公里", "160 公里"], answer: 0, explanation: "30 分鐘 = 0.5 小時。距離 = 速度 × 時間 = 80 × 0.5 = 40 公里。" }
+
+      english: [
+        {
+          id: 1,
+          category: "Present Perfect vs Past Simple",
+          question: "Mr. Lee ________ in Wan Chai since he graduated from university twenty years ago.",
+          options: [
+            "lives",
+            "has lived",
+            "is living",
+            "lived"
+          ],
+          answer: 1,
+          explanation: "【Exam Trap: 'since' + Past Time Clause】\nThe connective 'since' links a past action ('graduated') to the present moment. The main clause strictly requires the Present Perfect tense ('has lived'), while the clause after 'since' uses the Simple Past."
+        },
+        {
+          id: 2,
+          category: "Conditionals (Type 1)",
+          question: "If it ________ heavily tomorrow afternoon, the inter-school athletic meet will be postponed.",
+          options: [
+            "will rain",
+            "rains",
+            "rained",
+            "is raining"
+          ],
+          answer: 1,
+          explanation: "【Exam Trap: Future Tense inside an 'If' Clause】\nIn First Conditional sentences (real future possibilities), we NEVER use 'will' inside the 'if-clause'. Use Simple Present ('rains') in the 'if-clause' and 'will + bare verb' in the main clause."
+        },
+        {
+          id: 3,
+          category: "Relative Pronouns",
+          question: "The girl ________ father is a famous pediatric surgeon won the national science competition.",
+          options: [
+            "who",
+            "which",
+            "whose",
+            "whom"
+          ],
+          answer: 2,
+          explanation: "【Exam Trap: Confusing 'who' and 'whose'】\n'Whose' shows possession (The girl's father is a surgeon). Because 'father' is a noun directly following the blank, the possessive relative pronoun 'whose' is required."
+        },
+        {
+          id: 4,
+          category: "Dependent Prepositions",
+          question: "Our class teacher is very proud ________ our outstanding performance in the drama festival.",
+          options: [
+            "with",
+            "for",
+            "at",
+            "of"
+          ],
+          answer: 3,
+          explanation: "【Exam Trap: Wrong Preposition Collocation】\nThe fixed grammatical collocation is 'proud of' (whereas 'take pride in' uses 'in'). Do not confuse it with 'pleased with'."
+        },
+        {
+          id: 5,
+          category: "Proofreading (Subject-Verb Agreement)",
+          question: "Find the underlined part that contains a grammatical mistake:\n\"Neither James nor his two brothers (A) <u>wants</u> to go (B) <u>hiking</u> because they (C) <u>are</u> exhausted (D).\"",
+          options: [
+            "wants",
+            "hiking",
+            "are",
+            "No error"
+          ],
+          answer: 0,
+          explanation: "【Exam Trap: Proximity Rule with 'Neither... nor'】\nWhen two subjects are joined by 'neither... nor...', the verb agrees with the subject closer to it ('his two brothers' = plural). Therefore, 'wants' should be 'want'."
+        },
+        {
+          id: 6,
+          category: "Quantifiers (Uncountable Nouns)",
+          question: "We cannot bake the strawberry cake because there is ________ flour left in the cupboard.",
+          options: [
+            "a few",
+            "little",
+            "few",
+            "many"
+          ],
+          answer: 1,
+          explanation: "【Exam Trap: Countable vs Uncountable Quantifiers】\n'Flour' is an uncountable noun, eliminating 'a few', 'few', and 'many'. 'Little' means 'almost none' (negative meaning), matching why they cannot bake the cake."
+        },
+        {
+          id: 7,
+          category: "Question Tags",
+          question: "The students hardly made any noise during the morning assembly, ________?",
+          options: [
+            "did they",
+            "didn't they",
+            "do they",
+            "don't they"
+          ],
+          answer: 0,
+          explanation: "【Exam Trap: Hidden Negative Adverbs】\nWords like 'hardly', 'seldom', 'rarely', and 'never' make the statement negative. Thus, the question tag must be positive. Since 'made' is Simple Past, use 'did they?'."
+        },
+        {
+          id: 8,
+          category: "Gerunds vs Infinitives",
+          question: "Would you mind ________ the classroom window? It is rather stuffy inside.",
+          options: [
+            "open",
+            "to open",
+            "opening",
+            "opened"
+          ],
+          answer: 2,
+          explanation: "【Exam Trap: Verb Pattern after 'mind'】\nThe polite request 'Would you mind...' is always followed by a gerund (V-ing): 'opening'."
+        },
+        {
+          id: 9,
+          category: "Connectives of Contrast",
+          question: "________ having a high fever, Alan insisted on completing his visual arts project.",
+          options: [
+            "Although",
+            "Despite",
+            "Even though",
+            "However"
+          ],
+          answer: 1,
+          explanation: "【Exam Trap: Preposition vs Conjunction】\n'Despite' (and 'In spite of') is a preposition and must be followed by a noun or gerund ('having...'). 'Although' and 'Even though' must be followed by a full clause (subject + finite verb)."
+        },
+        {
+          id: 10,
+          category: "Passive Voice",
+          question: "The historic clock tower ________ by thousands of overseas tourists every weekend.",
+          options: [
+            "is visited",
+            "was visited",
+            "has visited",
+            "visits"
+          ],
+          answer: 0,
+          explanation: "【Exam Trap: Active vs Passive Voice】\nThe clock tower cannot perform the action of visiting; it receives the action. 'Every weekend' signals a habitual fact, requiring Present Simple Passive ('is visited')."
+        },
+        {
+          id: 11,
+          category: "Reflexive Pronouns",
+          question: "The children organized the charity fundraising carnival all by ________.",
+          options: [
+            "theirselves",
+            "themselves",
+            "them",
+            "themself"
+          ],
+          answer: 1,
+          explanation: "【Exam Trap: Non-existent Pronoun Forms】\n'Themselves' is the only standard plural reflexive pronoun. 'Theirselves' and 'themself' are common spelling traps in HK primary exams."
+        },
+        {
+          id: 12,
+          category: "Modal Verbs (Logical Deduction)",
+          question: "Look at the clear blue sky! It ________ rain this afternoon.",
+          options: [
+            "must",
+            "can't",
+            "should",
+            "needn't"
+          ],
+          answer: 1,
+          explanation: "【Exam Trap: Certainty of Impossibility】\nWhen evidence proves something is impossible (a clear blue sky), we use 'can't' (cannot) rather than 'mustn't' (which means prohibition)."
+        },
+        {
+          id: 13,
+          category: "Phrasal Verbs",
+          question: "The sudden thunderstorm forced the football referee to ________ the match.",
+          options: [
+            "call off",
+            "put on",
+            "turn down",
+            "look up"
+          ],
+          answer: 0,
+          explanation: "【Exam Trap: Idiomatic Phrasal Verbs】\n'Call off' means to cancel. 'Put on' = wear/stage; 'turn down' = reject/lower volume; 'look up' = search for information in a reference."
+        },
+        {
+          id: 14,
+          category: "Comparison of Adjectives",
+          question: "This newly renovated public library is much ________ than the old municipal one.",
+          options: [
+            "spacious",
+            "more spacious",
+            "most spacious",
+            "as spacious"
+          ],
+          answer: 1,
+          explanation: "【Exam Trap: Multi-syllable Comparatives】\n'Than' requires the comparative degree. 'Spacious' is a multi-syllable adjective, so its comparative is formed with 'more spacious' (modified by 'much')."
+        },
+        {
+          id: 15,
+          category: "Reported Speech",
+          question: "Kelly said to her brother, \"I am preparing for my mid-term assessment.\" → Kelly told her brother that she ________ for her mid-term assessment.",
+          options: [
+            "is preparing",
+            "was preparing",
+            "has prepared",
+            "prepared"
+          ],
+          answer: 1,
+          explanation: "【Exam Trap: Tense Backshift】\nBecause the reporting verb 'told' is in the past tense, Present Continuous ('am preparing') shifts back to Past Continuous ('was preparing')."
+        },
+        {
+          id: 16,
+          category: "Proofreading (Prepositions)",
+          question: "Find the incorrect segment:\n\"We arrived (A) <u>to</u> the Hong Kong International Airport (B) <u>at</u> 6 a.m. (C) <u>on</u> Monday (D).\"",
+          options: [
+            "to",
+            "at",
+            "on",
+            "No error"
+          ],
+          answer: 0,
+          explanation: "【Exam Trap: 'Arrive at/in' vs 'Arrive to'】\nWe arrive 'at' a specific building/venue (airport, station, school) or 'in' a city/country. 'Arrive to' is always incorrect."
+        },
+        {
+          id: 17,
+          category: "Adverbs of Manner",
+          question: "Although the examination questions were tricky, Sophia handled them ________.",
+          options: [
+            "easy",
+            "easily",
+            "easier",
+            "more easy"
+          ],
+          answer: 1,
+          explanation: "【Exam Trap: Adjective vs Adverb】\nThe word describes how Sophia 'handled' (verb) the questions, so an adverb ('easily') is required instead of an adjective ('easy')."
+        },
+        {
+          id: 18,
+          category: "Past Continuous vs Past Simple",
+          question: "While Mr. Wong ________ his car, he heard a strange noise coming from the engine.",
+          options: [
+            "drove",
+            "is driving",
+            "was driving",
+            "has driven"
+          ],
+          answer: 2,
+          explanation: "【Exam Trap: Interrupted Past Action】\nA longer ongoing action in the past ('was driving') was interrupted by a sudden short action ('heard'). 'While' introduces the continuous action."
+        },
+        {
+          id: 19,
+          category: "Indefinite Pronouns",
+          question: "Everyone in the school choir ________ practicing diligently for the competition.",
+          options: [
+            "is",
+            "are",
+            "were",
+            "be"
+          ],
+          answer: 0,
+          explanation: "【Exam Trap: Indefinite Pronouns are Singular】\n'Everyone', 'Everybody', 'Someone', and 'Nobody' always take a singular verb ('is'), even though they refer to a group of people."
+        },
+        {
+          id: 20,
+          category: "Used to vs Be used to",
+          question: "My grandfather ________ go swimming at Repulse Bay every dawn, but now he takes a morning walk.",
+          options: [
+            "is used to",
+            "used to",
+            "was used to",
+            "uses to"
+          ],
+          answer: 1,
+          explanation: "【Exam Trap: Past Habit vs Accustomed】\n'Used to + bare infinitive' ('go') describes a past habit that no longer happens. 'Be used to' must be followed by a noun or gerund ('going')."
+        }
       ],
-      Chinese: [
-        { id: 1, category: "錯別字辨識", question: "下列句子中，哪一個詞語「沒有」錯別字？", options: ["他為人非常大方，從不斤斤計較。", "這道題目的難度簡直不可思意。", "經過多年努力，他終於功成名就，光宗躍祖。", "我們在圖書館裡要保持肅靜，切勿高聲申訴。"], answer: 0, explanation: "A 完全正確。B 應為「不可思議」；C 應為「光宗耀祖」；D 應為「喧嘩/喧鬧」。" },
-        { id: 2, category: "成語運用", question: "「只要我們大家________，同心協力，一定可以渡過眼前難關。」橫線上最適合填入哪一個成語？", options: ["同舟共濟", "袖手旁觀", "各自為政", "墨守成規"], answer: 0, explanation: "「同舟共濟」比喻同心協力克服困難。" },
-        { id: 3, category: "關聯詞搭配", question: "選出最恰當的關聯詞：「________明天下大雨，學校的校運會________會如期舉行。」", options: ["即使……也……", "因為……所以……", "如果……就……", "雖然……但是……"], answer: 0, explanation: "假設讓步關係，用「即使……也……」。" },
-        { id: 4, category: "修辭手法辨析", question: "「春天來了，粉紅的桃花在枝頭對著我們微笑。」這句話運用了哪種修辭手法？", options: ["擬人", "比喻", "排比", "誇張"], answer: 0, explanation: "賦予桃花「微笑」的人類動作，屬於擬人。" },
-        { id: 5, category: "病句辨析", question: "下列哪一句是沒有語病的正確句子？", options: ["在老師的耐性指導下，我的中文寫作水平有了顯著的提高。", "全班同學都參加了這次活動，只有小明一個人沒有缺席。", "昨天傍晚下了一整天的大雨。", "我斷定他今天可能不會來學校。"], answer: 0, explanation: "A 正確。B 語意矛盾；C 傍晚不能下整天；D 「斷定」與「可能」矛盾。" },
-        { id: 6, category: "標點符號運用", question: "「我最喜愛的課外活動有很多，例如_____踢足球、彈鋼琴、下圍棋和畫畫。」橫線應填入什麼標點符號？", options: ["冒號（：）", "破折號（——）", "逗號（，）", "省略號（……）"], answer: 0, explanation: "舉例提示下文用冒號。" },
-        { id: 7, category: "近義詞辨析", question: "「警方在案發現場搜集到十分________的線索。」橫線上填入哪一個詞最恰當？", options: ["寶貴", "名貴", "珍奇", "貴重"], answer: 0, explanation: "形容具重大參考價值的線索用「寶貴」。" },
-        { id: 8, category: "詞性辨析", question: "在「他認真閱讀課本」一句中，「認真」是什麼詞性的詞語？", options: ["副詞（修飾動詞）", "動詞", "名詞", "連詞"], answer: 0, explanation: "修飾動詞「閱讀」，屬副詞用法。" },
-        { id: 9, category: "語句重組", question: "將下列詞組重組為通順句子：\n①撲向 ②飢餓的老鷹 ③草叢中的野兔 ④從高空俯衝下來", options: ["②④①③", "④②①③", "②①③④", "④①③②"], answer: 0, explanation: "飢餓的老鷹(②)從高空俯衝下來(④)撲向(①)草叢中的野兔(③)。" },
-        { id: 10, category: "反義詞搭配", question: "「簡陋」的反義詞是什麼？", options: ["豪華", "簡約", "普通", "狹窄"], answer: 0, explanation: "簡陋反義詞為豪華。" },
-        { id: 11, category: "修辭辨析：排比", question: "「燕子去了，有再來的時候；楊柳枯了，有再青的時候；桃花謝了，有再開的時候。」這句話運用了哪種修辭？", options: ["排比", "對偶", "誇張", "借代"], answer: 0, explanation: "三個結構相同語氣一致的句子並列為排比。" },
-        { id: 12, category: "成語正字", question: "下列哪一個成語有錯別字？", options: ["再接再勵", "迎刃而解", "迫不及待", "各抒己見"], answer: 0, explanation: "應為「再接再厲」（厲指磨礪）。" },
-        { id: 13, category: "主謂賓結構", question: "「活潑可愛的小弟弟在客廳開心地玩著積木。」這句話的主要動詞（謂語）是哪一個字？", options: ["玩", "開心地", "是", "小弟弟"], answer: 0, explanation: "核心謂語動詞為「玩」。" },
-        { id: 14, category: "關聯詞判斷", question: "「他________家境清貧，________從不放棄求學的志向。」橫線應填入：", options: ["雖然……但是……", "因為……所以……", "不但……而且……", "寧可……也不……"], answer: 0, explanation: "轉折複句用「雖然……但是……」。" },
-        { id: 15, category: "詞語褒貶色彩", question: "下列哪一個詞語屬於「褒義詞」（正面讚賞）？", options: ["臨危不懼", "自以為是", "投機取巧", "巧言令色"], answer: 0, explanation: "臨危不懼為褒義詞。" },
-        { id: 16, category: "錯別字修正", question: "「他因粗心大意而在考試中名落孫山，感到十分『懊悔』。」括號中的字詞是否正確？", options: ["完全正確", "應改為「傲悔」", "應改為「奧悔」", "應改為「惱悔」"], answer: 0, explanation: "「懊悔」完全正確。" },
-        { id: 17, category: "成語理解", question: "「守株待兔」這個成語告誡我們什麼道理？", options: ["不付出努力，只寄望意外收獲是行不通的", "要學會愛護大自然的小動物", "農夫應該轉行做獵人", "機會每天都會在同一地方出現"], answer: 0, explanation: "告誡不可妄想不勞而獲。" },
-        { id: 18, category: "動詞搭配", question: "選出搭配最恰當的動詞：「為了維護校園秩序，學校________了一系列嚴格的守則。」", options: ["制訂", "制造", "發明", "造就"], answer: 0, explanation: "規則、守則搭配為「制訂」。" },
-        { id: 19, category: "修辭辨析：設問", question: "「什麼是人生最大的快樂？就是用自己的雙手創造幸福。」這句話運用了：", options: ["設問（自問自答）", "反問（無疑問而問）", "疑問", "嘆詠"], answer: 0, explanation: "自問自答為設問。" },
-        { id: 20, category: "語體辨析", question: "下列哪一句完全符合正規書面語要求，沒有口語化詞彙？", options: ["這項任務十分繁重，我們必須竭盡全力去完成。", "今日返學嗰陣時，我唔小心跌親。", "佢好叻，成日都考第一名。", "大家千祈唔好隨地丟垃圾啊！"], answer: 0, explanation: "A 為規範書面語，其他含粵語方言。" }
+
+      maths: [
+        {
+          id: 1,
+          category: "異分母分數加減混合",
+          question: "計算：2又1/4 - 5/6 + 1又1/2 = ？",
+          options: [
+            "2又11/12",
+            "2又7/12",
+            "3又1/12",
+            "2又5/12"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：借位通分計算錯誤】\n分母 4、6、2 的最小公倍數是 12。\n2又1/4 = 2又3/12；5/6 = 10/12；1又1/2 = 1又6/12。\n因為 3/12 不夠減 10/12，需向整數 2 借 1 化為 12/12：\n原式 = 1又15/12 - 10/12 + 1又6/12\n= 1又5/12 + 1又6/12 = 2又11/12。"
+        },
+        {
+          id: 2,
+          category: "直角三角形對應底高",
+          question: "一個直角三角形的三條邊長分別為 15 cm、20 cm 及 25 cm。這個三角形的面積是多少平方厘米？",
+          options: [
+            "150 平方厘米",
+            "250 平方厘米",
+            "187.5 平方厘米",
+            "300 平方厘米"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：誤用斜邊當底或高】\n直角三角形中最長的邊（25 cm）必定是斜邊，另外兩條較短的邊（15 cm 與 20 cm）互相垂直，正好互為底和高。\n面積 = (底 × 高) ÷ 2 = (15 × 20) ÷ 2 = 150 平方厘米。"
+        },
+        {
+          id: 3,
+          category: "梯形面積逆向求高",
+          question: "一個梯形的上底是 8 cm，下底是 14 cm，面積是 132 平方厘米。這個梯形的高是多少 cm？",
+          options: [
+            "6 cm",
+            "12 cm",
+            "18 cm",
+            "24 cm"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：忘記先將面積乘以 2】\n梯形面積 = (上底 + 下底) × 高 ÷ 2\n高 = 面積 × 2 ÷ (上底 + 下底)\n高 = 132 × 2 ÷ (8 + 14) = 264 ÷ 22 = 12 cm。"
+        },
+        {
+          id: 4,
+          category: "簡易方程（年齡差不變）",
+          question: "今年爸爸的年齡是小明的 3 倍。5 年後，爸爸比小明大 28 歲。小明今年多少歲？",
+          options: [
+            "14 歲",
+            "12 歲",
+            "10 歲",
+            "16 歲"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：被「5 年後」干擾】\n兩人的年齡差永遠不會隨時間改變，因此今年爸爸同樣比小明大 28 歲。\n設小明今年 x 歲，爸爸今年 3x 歲：\n3x - x = 28 → 2x = 28 → x = 14 歲。"
+        },
+        {
+          id: 5,
+          category: "分數乘法（「餘下的」基準）",
+          question: "一條紅絲帶長 12 米，包裝禮物用去了全部的 1/3，綁氣球又用去了「餘下的」 1/4。這條絲帶還剩下多少米？",
+          options: [
+            "6 米",
+            "5 米",
+            "4 米",
+            "7 米"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：直接將 1/3 + 1/4 相加】\n第二次用的是「餘下的」1/4，單位「1」已改變。\n第一次用去：12 × 1/3 = 4 米，餘下 12 - 4 = 8 米。\n第二次用去：8 × 1/4 = 2 米。\n最後剩下：8 - 2 = 6 米。"
+        },
+        {
+          id: 6,
+          category: "小數四則運算順序",
+          question: "計算：0.48 ÷ 0.12 × 2.5 = ？",
+          options: [
+            "1",
+            "10",
+            "100",
+            "0.1"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：先乘後除破壞同級順序】\n乘除屬於同級運算，必須嚴格「由左至右」依序計算：\n0.48 ÷ 0.12 = 4\n4 × 2.5 = 10。"
+        },
+        {
+          id: 7,
+          category: "平行四邊形底高配對",
+          question: "平行四邊形相鄰兩條邊長分別為 10 cm 及 8 cm。若其中一條邊上的高是 9 cm，這個平行四邊形的面積是多少平方厘米？",
+          options: [
+            "90 平方厘米",
+            "72 平方厘米",
+            "80 平方厘米",
+            "36 平方厘米"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：底與高配對錯誤】\n高（9 cm）與鄰邊構成直角三角形，直角邊（高）必定短於斜邊（另一條鄰邊）。\n因為 9 cm > 8 cm，所以高不可能是畫在 10 cm 底邊上（否則 9 > 8 不成立）；它必定是 8 cm 底邊所對應的高（此時斜邊為 10 cm，符合 9 < 10）。\n面積 = 8 × 9 = 72 平方厘米。"
+        },
+        {
+          id: 8,
+          category: "分數乘除大小比較",
+          question: "若 A × 3/5 = B ÷ 3/5（A、B 均大於 0），則 A 與 B 的大小關係是：",
+          options: [
+            "A > B",
+            "A < B",
+            "A = B",
+            "無法確定"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：未將除法轉為乘法比較】\n除以一個分數等於乘以它的倒數：B ÷ 3/5 = B × 5/3。\n已知 A × 3/5 = B × 5/3。因為 3/5 < 5/3，乘積相等時，乘數越小，被乘數越大，故 A > B。"
+        },
+        {
+          id: 9,
+          category: "含括號簡易方程",
+          question: "解方程：4(y - 3) + 6 = 26，求 y 的值：",
+          options: [
+            "7",
+            "8",
+            "9",
+            "6"
+          ],
+          answer: 1,
+          explanation: "【解題步驟】\n4(y - 3) = 26 - 6\n4(y - 3) = 20\ny - 3 = 20 ÷ 4\ny - 3 = 5\ny = 8。"
+        },
+        {
+          id: 10,
+          category: "圖形拼合周界變化",
+          question: "將兩個長 8 cm、闊 4 cm 的相同長方形拼成一個大正方形，拼成的大正方形周界是多少 cm？",
+          options: [
+            "32 cm",
+            "48 cm",
+            "24 cm",
+            "64 cm"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：直接把兩個長方形周界相加】\n拼合後內部有兩條 8 cm 邊重疊消失。將兩條 8 cm 的長邊並排拼合，新圖形的長是 8 cm，闊是 4 + 4 = 8 cm，成為邊長 8 cm 的正方形。\n周界 = 8 × 4 = 32 cm。"
+        },
+        {
+          id: 11,
+          category: "八個方向相對位置",
+          question: "如果志明站在小麗的「西北方」，那麼小麗站在志明的甚麼方向？",
+          options: [
+            "東北方",
+            "西南方",
+            "東南方",
+            "西北方"
+          ],
+          answer: 2,
+          explanation: "【失分陷阱：只反轉其中一個方位】\n觀察點互換時，方向完全相反：「西」對「東」，「北」對「南」，因此「西北方」的相反方向是「東南方」。"
+        },
+        {
+          id: 12,
+          category: "時間單位換算與行程",
+          question: "陳先生駕車以平均時速 60 公里行駛，他行駛了 45 分鐘，一共行駛了多少公里？",
+          options: [
+            "40 公里",
+            "45 公里",
+            "50 公里",
+            "55 公里"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：誤將 45 分鐘當作 0.45 小時】\n1 小時 = 60 分鐘，45 分鐘 = 45/60 小時 = 3/4 小時（0.75 小時）。\n路程 = 速率 × 時間 = 60 × 3/4 = 45 公里。"
+        },
+        {
+          id: 13,
+          category: "代數式括號運用",
+          question: "小櫻有 $m，買了 5 枝每枝 $n 的原子筆後，再把餘下的錢平均分給 2 名弟弟。每名弟弟分得多少元？",
+          options: [
+            "$(m - 5n) ÷ 2",
+            "$(m - n) ÷ 2",
+            "$m - 5n ÷ 2",
+            "$(5n - m) ÷ 2"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：漏寫括號導致先除後減】\n買筆花去 $5n，餘下 $(m - 5n)。必須加上括號表示先算減法再平分：$(m - 5n) ÷ 2。"
+        },
+        {
+          id: 14,
+          category: "分數除法應用",
+          question: "水桶裡有水 3又3/4 升。若將其分裝入容量為 3/8 升的玻璃樽內，最多可裝滿多少個玻璃樽？",
+          options: [
+            "8 個",
+            "9 個",
+            "10 個",
+            "11 個"
+          ],
+          answer: 2,
+          explanation: "【解題步驟】\n3又3/4 ÷ 3/8 = 15/4 ÷ 3/8\n= 15/4 × 8/3\n約分後得 5 × 2 = 10 個。"
+        },
+        {
+          id: 15,
+          category: "複合圖形割補面積",
+          question: "一個直角梯形，上底 6 cm，下底 10 cm，垂直高 4 cm。在梯形內部剪去一個底 4 cm、高 3 cm 的三角形，餘下部分的面積是多少？",
+          options: [
+            "26 平方厘米",
+            "32 平方厘米",
+            "20 平方厘米",
+            "18 平方厘米"
+          ],
+          answer: 0,
+          explanation: "【解題步驟】\n梯形面積 = (6 + 10) × 4 ÷ 2 = 32 平方厘米。\n三角形面積 = 4 × 3 ÷ 2 = 6 平方厘米。\n餘下面積 = 32 - 6 = 26 平方厘米。"
+        },
+        {
+          id: 16,
+          category: "文字題列方程",
+          question: "某數的 4 倍減去 18，剛好等於該數的 2 倍加上 14。求某數是多少？",
+          options: [
+            "15",
+            "16",
+            "17",
+            "18"
+          ],
+          answer: 1,
+          explanation: "【解題步驟】\n設某數為 x：\n4x - 18 = 2x + 14\n4x - 2x = 14 + 18\n2x = 32 → x = 16。"
+        },
+        {
+          id: 17,
+          category: "四邊形性質辨析",
+          question: "下列關於菱形（Rhombus）的性質描述，哪一項「不一定正確」？",
+          options: [
+            "四條邊的長度完全相等",
+            "對邊互相平行",
+            "四個角都是直角 (90°)",
+            "對角線互相垂直平分"
+          ],
+          answer: 2,
+          explanation: "【失分陷阱：混淆菱形與正方形】\n菱形四邊相等、對邊平行且對角線互相垂直平分；但它的四個角不一定是直角（只有當四個角都是直角時，才特稱為正方形）。"
+        },
+        {
+          id: 18,
+          category: "平均數總分差值法",
+          question: "小明前 4 次測驗的平均成績是 82 分。如果他希望 5 次測驗的平均成績達到 85 分，他在第 5 次測驗至少需要考得多少分？",
+          options: [
+            "95 分",
+            "97 分",
+            "92 分",
+            "90 分"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：直接用 85×2 - 82】\n前 4 次總分 = 82 × 4 = 328 分。\n5 次目標總分 = 85 × 5 = 425 分。\n第 5 次至少需考 = 425 - 328 = 97 分。"
+        },
+        {
+          id: 19,
+          category: "體積與容量單位換算",
+          question: "一個長方體水箱內部尺寸為長 50 cm、闊 40 cm、高 30 cm。如果水箱注入了半箱水，水箱內有水多少公升 (L)？",
+          options: [
+            "60 公升",
+            "30 公升",
+            "300 公升",
+            "15 公升"
+          ],
+          answer: 1,
+          explanation: "【失分陷阱：忘記除以 2 或單位進率出錯】\n水箱總容積 = 50 × 40 × 30 = 60,000 cm³。\n半箱水體積 = 60,000 ÷ 2 = 30,000 cm³。\n因為 1,000 cm³ = 1 公升，所以 30,000 cm³ = 30 公升。"
+        },
+        {
+          id: 20,
+          category: "買幾送幾週期問題",
+          question: "果汁每盒售價 $12，超級市場推出「買四送一」特惠活動。媽媽拿了 15 盒果汁，結帳時共需付款多少元？",
+          options: [
+            "$144",
+            "$180",
+            "$120",
+            "$156"
+          ],
+          answer: 0,
+          explanation: "【失分陷阱：誤算成 15 - 3 = 12 以外的組合】\n「買四送一」即每 5 盒為 1 組，每組只需付 4 盒的錢。\n15 ÷ 5 = 3 組。\n實際需付費盒數 = 3 × 4 = 12 盒。\n總金額 = 12 × $12 = $144。"
+        }
       ]
     };
 
-    let currentSubject = 'English';
-    let currentIdx = 0;
-    let subjectData = JSON.parse(JSON.stringify(fallbackDB));
-    let userAnswers = { English: new Array(20).fill(null), Maths: new Array(20).fill(null), Chinese: new Array(20).fill(null) };
-    let userFlags = { English: new Array(20).fill(false), Maths: new Array(20).fill(false), Chinese: new Array(20).fill(false) };
-    let timers = { English: 1200, Maths: 1200, Chinese: 1200 };
-    let timeSpent = { English: 0, Maths: 0, Chinese: 0 };
-    let timerId = null;
+    const subjectOrder = ['chinese', 'english', 'maths'];
+    const subjectLabels = {
+      chinese: { name: '中文科', title: '小五中文科呈分模擬卷 (20題單選)', report: '小五中文科 呈分試評估報告' },
+      english: { name: '英文科', title: 'Primary 5 English Pre-S1 Assessment (20 MCQs)', report: 'Primary 5 English Assessment Report' },
+      maths: { name: '數學科', title: '小五數學科呈分模擬卷 (20題單選)', report: '小五數學科 呈分試評估報告' }
+    };
+
+    // 計算每日自動輪替科目（按香港時間 UTC+8 天數輪替）
+    function getDailyRotatedSubject() {
+      const now = new Date();
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const hkTime = new Date(utc + (3600000 * 8));
+      const dayCount = Math.floor(hkTime.getTime() / (1000 * 60 * 60 * 24));
+      const dateStr = `${hkTime.getFullYear()}-${String(hkTime.getMonth() + 1).padStart(2, '0')}-${String(hkTime.getDate()).padStart(2, '0')}`;
+      document.getElementById('hk-date-badge').textContent = `HKT ${dateStr}`;
+      return subjectOrder[dayCount % 3];
+    }
+
+    let currentSubject = getDailyRotatedSubject();
+    let currentIndex = 0;
+    let userAnswers = new Array(20).fill(null);
+    let flaggedQuestions = new Array(20).fill(false);
+    let timerTotalSeconds = 1200; // 20 分鐘 = 1200 秒
+    let timeSpentSeconds = 0;
+    let timerInterval = null;
     let isPaused = false;
+    let showWrongOnly = false;
 
-    function switchSubject(sub) {
-      currentSubject = sub;
-      currentIdx = 0;
+    function switchSubject(subKey) {
+      currentSubject = subKey;
+      document.getElementById('daily-rotation-info').textContent = `當前練習科目：${subjectLabels[subKey].name}（支援中、英、數每日自動輪替或手動切換）`;
+      resetCurrentExam();
+    }
 
-      ['English', 'Maths', 'Chinese'].forEach(s => {
-        const tab = document.getElementById(`tab-${s}`);
-        if (s === sub) {
-          tab.className = "flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 bg-blue-600 text-white shadow-md";
+    function switchToNextSubject() {
+      const nextIdx = (subjectOrder.indexOf(currentSubject) + 1) % subjectOrder.length;
+      switchSubject(subjectOrder[nextIdx]);
+    }
+
+    function updateTabUI() {
+      subjectOrder.forEach(s => {
+        const btn = document.getElementById(`tab-${s}`);
+        if (s === currentSubject) {
+          btn.className = "py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 bg-blue-600 text-white shadow-md";
         } else {
-          tab.className = "flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white";
+          btn.className = "py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white hover:bg-[#202430]";
         }
       });
-
-      const titles = {
-        English: '英文科模擬試卷 (20題)',
-        Maths: '數學科模擬試卷 (20題)',
-        Chinese: '中文科模擬試卷 (20題)'
-      };
-      document.getElementById('subject-title').textContent = titles[sub];
-
-      renderPalette();
-      loadQuestion(0);
-      renderTimer();
+      document.getElementById('exam-heading').textContent = subjectLabels[currentSubject].title;
     }
 
     function renderPalette() {
@@ -280,61 +1046,58 @@
     }
 
     function getPaletteClass(i) {
-      const isCur = i === currentIdx;
-      const isAns = userAnswers[currentSubject][i] !== null;
-      const isFlg = userFlags[currentSubject][i];
+      const isCur = i === currentIndex;
+      const isAns = userAnswers[i] !== null;
+      const isFlg = flaggedQuestions[i];
       let base = "h-9 w-full rounded-xl text-xs font-bold transition flex items-center justify-center ";
 
-      if (isCur) return base + "bg-[#1d2535] text-blue-400 border-2 border-blue-500 shadow-md";
-      if (isFlg) return base + "bg-[#25221b] text-amber-300 border border-amber-500/80";
+      if (isCur) return base + "bg-[#1e273c] text-blue-400 border-2 border-blue-500 shadow-md";
+      if (isFlg) return base + "bg-[#2a241a] text-amber-300 border border-amber-500/80";
       if (isAns) return base + "bg-blue-600/25 text-blue-300 border border-blue-500/60";
-      return base + "bg-[#181c24] text-slate-400 border border-[#272e3d] hover:bg-[#202632]";
+      return base + "bg-[#161920] text-slate-400 border border-[#252b37] hover:bg-[#1f2431]";
     }
 
     function updateAnsweredCount() {
-      const count = userAnswers[currentSubject].filter(a => a !== null).length;
-      document.getElementById('palette-count').textContent = `${count}/20 answered`;
+      const count = userAnswers.filter(a => a !== null).length;
+      document.getElementById('palette-count').textContent = `${count} / 20 已答`;
     }
 
     function loadQuestion(idx) {
-      currentIdx = idx;
-      const qList = subjectData[currentSubject];
-      if (!qList || qList.length === 0) return;
+      currentIndex = idx;
+      const q = examDatabase[currentSubject][idx];
 
-      const q = qList[idx];
+      document.getElementById('item-number-tag').textContent = `第 ${idx + 1} 題 / 共 20 題`;
+      document.getElementById('category-tag').textContent = `${q.category}`;
+      document.getElementById('question-prompt').textContent = q.question;
 
-      document.getElementById('current-item-label').textContent = `Item ${idx + 1} of 20`;
-      document.getElementById('topic-tag').textContent = `${q.category} • EDB Syllabus`;
-      document.getElementById('question-text').textContent = q.question;
+      updateFlagUI();
 
-      updateFlagButtonUI();
-
-      const container = document.getElementById('options-list');
+      const container = document.getElementById('options-container');
       container.innerHTML = '';
       const letters = ['A', 'B', 'C', 'D'];
 
-      q.options.forEach((opt, optIdx) => {
-        const isChosen = userAnswers[currentSubject][currentIdx] === optIdx;
+      q.options.forEach((optText, optIdx) => {
+        const isChosen = userAnswers[currentIndex] === optIdx;
         const btn = document.createElement('button');
         btn.className = `w-full text-left p-3.5 sm:p-4 rounded-2xl border transition flex items-center justify-between group ${
           isChosen
-            ? 'bg-[#1b253b] border-blue-500 text-white shadow-lg ring-1 ring-blue-500/50'
-            : 'bg-[#171a21] border-[#252b37] hover:border-[#353d4e] hover:bg-[#1c202a] text-slate-300'
+            ? 'bg-[#1a2438] border-blue-500 text-white shadow-lg ring-1 ring-blue-500/50'
+            : 'bg-[#15181f] border-[#242834] hover:border-[#343c4d] hover:bg-[#191d26] text-slate-300'
         }`;
 
         btn.onclick = () => {
           if (!isPaused) {
-            userAnswers[currentSubject][currentIdx] = optIdx;
-            loadQuestion(currentIdx);
+            userAnswers[currentIndex] = optIdx;
+            loadQuestion(currentIndex);
           }
         };
 
         btn.innerHTML = `
           <div class="flex items-center gap-3.5">
             <span class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold transition ${
-              isChosen ? 'bg-blue-600 text-white shadow-md' : 'bg-[#222733] text-slate-400 group-hover:text-slate-200 border border-[#2d3444]'
+              isChosen ? 'bg-blue-600 text-white shadow-md' : 'bg-[#202531] text-slate-400 group-hover:text-slate-200 border border-[#2c3342]'
             }">${letters[optIdx]}</span>
-            <span class="text-sm sm:text-base ${isChosen ? 'text-white font-medium' : ''}">${opt}</span>
+            <span class="text-sm sm:text-base ${isChosen ? 'text-white font-medium' : ''}">${optText}</span>
           </div>
           ${isChosen ? '<i class="fa-solid fa-circle-check text-blue-400 text-base"></i>' : ''}
         `;
@@ -352,42 +1115,43 @@
     }
 
     function navigate(delta) {
-      const next = currentIdx + delta;
-      if (next >= 0 && next < 20) loadQuestion(next);
+      const target = currentIndex + delta;
+      if (target >= 0 && target < 20) loadQuestion(target);
     }
 
     function toggleFlag() {
-      userFlags[currentSubject][currentIdx] = !userFlags[currentSubject][currentIdx];
-      updateFlagButtonUI();
-      const b = document.getElementById(`pal-${currentIdx}`);
-      if (b) b.className = getPaletteClass(currentIdx);
+      flaggedQuestions[currentIndex] = !flaggedQuestions[currentIndex];
+      updateFlagUI();
+      const b = document.getElementById(`pal-${currentIndex}`);
+      if (b) b.className = getPaletteClass(currentIndex);
     }
 
-    function updateFlagButtonUI() {
-      const isFlg = userFlags[currentSubject][currentIdx];
+    function updateFlagUI() {
+      const isFlg = flaggedQuestions[currentIndex];
       const flagBtn = document.getElementById('flag-btn');
       const flagText = document.getElementById('flag-text');
       if (isFlg) {
         flagBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/60 transition";
-        flagText.textContent = "Flagged";
+        flagText.textContent = "已標記覆核";
         flagBtn.querySelector('i').className = "fa-solid fa-flag text-xs text-amber-400";
       } else {
-        flagBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#1a1e26] hover:bg-[#232936] text-slate-300 border border-[#2b3342] transition";
-        flagText.textContent = "Flag for Review";
+        flagBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#191d26] hover:bg-[#222835] text-slate-300 border border-[#2a3140] transition";
+        flagText.textContent = "標記覆核";
         flagBtn.querySelector('i').className = "fa-regular fa-flag text-xs";
       }
     }
 
     function startTimer() {
-      clearInterval(timerId);
-      timerId = setInterval(() => {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
         if (!isPaused) {
-          if (timers[currentSubject] > 0) {
-            timers[currentSubject]--;
-            timeSpent[currentSubject]++;
+          if (timerTotalSeconds > 0) {
+            timerTotalSeconds--;
+            timeSpentSeconds++;
             renderTimer();
           } else {
-            clearInterval(timerId);
+            clearInterval(timerInterval);
+            alert("20 分鐘作答時間已到！系統將自動交卷並進行批改。");
             finishExam();
           }
         }
@@ -395,9 +1159,15 @@
     }
 
     function renderTimer() {
-      const m = Math.floor(timers[currentSubject] / 60);
-      const s = timers[currentSubject] % 60;
-      document.getElementById('timer-text').textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      const m = Math.floor(timerTotalSeconds / 60);
+      const s = timerTotalSeconds % 60;
+      const elem = document.getElementById('timer-text');
+      elem.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      if (timerTotalSeconds <= 180) {
+        elem.classList.add('text-rose-400');
+      } else {
+        elem.classList.remove('text-rose-400');
+      }
     }
 
     function togglePause() {
@@ -405,102 +1175,147 @@
       const overlay = document.getElementById('pause-overlay');
       const txt = document.getElementById('pause-text');
       if (isPaused) {
-        txt.textContent = "Resume";
+        txt.textContent = "繼續";
         overlay.classList.remove('hidden');
         overlay.classList.add('flex');
       } else {
-        txt.textContent = "Pause";
+        txt.textContent = "暫停";
         overlay.classList.remove('flex');
         overlay.classList.add('hidden');
       }
     }
 
-    function confirmSubmission() {
-      const unans = userAnswers[currentSubject].filter(a => a === null).length;
-      let msg = "確定現在交卷嗎？";
-      if (unans > 0) msg = `你尚有 ${unans} 題未作答！確定現在交卷嗎？`;
+    function confirmSubmit() {
+      const unans = userAnswers.filter(a => a === null).length;
+      const msg = unans > 0
+        ? `你尚有 ${unans} 題未作答！確定現在交卷嗎？`
+        : "所有題目已完成作答，確定現在交卷並查看詳細分析嗎？";
       if (window.confirm(msg)) finishExam();
     }
 
     function finishExam() {
+      clearInterval(timerInterval);
       document.getElementById('exam-card').classList.add('hidden');
       document.getElementById('result-view').classList.remove('hidden');
       document.getElementById('result-view').classList.add('flex');
 
+      const qList = examDatabase[currentSubject];
       let score = 0;
-      const qList = subjectData[currentSubject];
       qList.forEach((q, idx) => {
-        if (userAnswers[currentSubject][idx] === q.answer) score++;
+        if (userAnswers[idx] === q.answer) score++;
       });
 
       const accuracy = Math.round((score / 20) * 100);
-      const spent = timeSpent[currentSubject];
-      const m = Math.floor(spent / 60);
-      const s = spent % 60;
+      const m = Math.floor(timeSpentSeconds / 60);
+      const s = timeSpentSeconds % 60;
 
+      document.getElementById('res-subject-label').textContent = subjectLabels[currentSubject].report;
       document.getElementById('res-score').textContent = `${score} / 20`;
       document.getElementById('res-accuracy').textContent = `${accuracy}%`;
       document.getElementById('res-time').textContent = `${m}分 ${s}秒`;
 
-      let banding = 'Band 3';
-      if (score >= 18) banding = 'Band 1A (頂尖)';
-      else if (score >= 15) banding = 'Band 1 (良好)';
-      else if (score >= 11) banding = 'Band 2 (中等)';
-      document.getElementById('res-band').textContent = banding;
+      let bandText = '需加強鞏固';
+      let bandColor = 'text-rose-400';
+      if (score >= 18) {
+        bandText = 'Band 1A (優異)';
+        bandColor = 'text-emerald-400';
+      } else if (score >= 15) {
+        bandText = 'Band 1 (良好)';
+        bandColor = 'text-blue-400';
+      } else if (score >= 12) {
+        bandText = 'Band 2 (尚可)';
+        bandColor = 'text-amber-400';
+      }
 
-      const container = document.getElementById('review-cards');
+      const bandElem = document.getElementById('res-band');
+      bandElem.textContent = bandText;
+      bandElem.className = `text-2xl font-black mt-1 ${bandColor}`;
+
+      showWrongOnly = false;
+      document.getElementById('filter-wrong-btn').textContent = "只看錯題 (Show Mistakes Only)";
+      renderReviewCards();
+    }
+
+    function toggleWrongOnly() {
+      showWrongOnly = !showWrongOnly;
+      document.getElementById('filter-wrong-btn').textContent = showWrongOnly
+        ? "顯示全部 20 題 (Show All)"
+        : "只看錯題 (Show Mistakes Only)";
+      renderReviewCards();
+    }
+
+    function renderReviewCards() {
+      const container = document.getElementById('review-cards-list');
       container.innerHTML = '';
+      const qList = examDatabase[currentSubject];
       const letters = ['A', 'B', 'C', 'D'];
+      let renderedCount = 0;
 
       qList.forEach((q, i) => {
-        const userChoice = userAnswers[currentSubject][i];
-        const isOk = userChoice === q.answer;
+        const userChoice = userAnswers[i];
+        const isCorrect = userChoice === q.answer;
+        if (showWrongOnly && isCorrect) return;
+        renderedCount++;
+
         const card = document.createElement('div');
-        card.className = `p-4 sm:p-5 rounded-2xl border transition ${isOk ? 'bg-[#141d1a] border-emerald-500/30' : 'bg-[#201518] border-rose-500/30'}`;
+        card.className = `p-4 sm:p-5 rounded-2xl border transition ${
+          isCorrect ? 'bg-[#121a16] border-emerald-500/30' : 'bg-[#1f1316] border-rose-500/30'
+        }`;
+
         card.innerHTML = `
           <div class="flex items-start justify-between gap-2 mb-2 flex-wrap">
-            <span class="font-bold text-white text-sm sm:text-base">第 ${i + 1} 題：${q.question}</span>
-            <span class="px-2.5 py-0.5 rounded-md text-xs font-bold ${isOk ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'}">
-              ${isOk ? '答對 Correct' : '答錯 Incorrect'}
+            <span class="font-bold text-white text-sm sm:text-base">第 ${i + 1} 題（${q.category}）：<br><span class="font-normal text-slate-200 mt-1 inline-block whitespace-pre-line">${q.question}</span></span>
+            <span class="px-2.5 py-0.5 rounded-md text-xs font-bold shrink-0 ${
+              isCorrect ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+            }">
+              ${isCorrect ? '答對 Correct' : '答錯 Incorrect'}
             </span>
           </div>
-          <div class="text-xs sm:text-sm text-slate-300 grid grid-cols-1 sm:grid-cols-2 gap-2 my-2.5">
-            <div class="bg-[#181a20] p-2.5 rounded-xl border border-[#252832]">
-              你的答案：<strong class="${isOk ? 'text-emerald-400' : 'text-rose-400'}">${userChoice !== null ? letters[userChoice] + '. ' + q.options[userChoice] : '未作答'}</strong>
+          <div class="text-xs sm:text-sm text-slate-300 grid grid-cols-1 sm:grid-cols-2 gap-2 my-3">
+            <div class="bg-[#171920] p-2.5 rounded-xl border border-[#252834]">
+              你的選擇：<strong class="${isCorrect ? 'text-emerald-400' : 'text-rose-400'}">${userChoice !== null ? letters[userChoice] + '. ' + q.options[userChoice] : '未作答'}</strong>
             </div>
-            <div class="bg-[#181a20] p-2.5 rounded-xl border border-[#252832]">
+            <div class="bg-[#171920] p-2.5 rounded-xl border border-[#252834]">
               正確答案：<strong class="text-emerald-400">${letters[q.answer]}. ${q.options[q.answer]}</strong>
             </div>
           </div>
-          <div class="mt-3 text-xs sm:text-sm bg-[#161921] p-3.5 rounded-xl border border-[#262c3a] text-slate-300 leading-relaxed">
-            <strong class="text-blue-400 font-semibold block mb-1">呈分試重點思路：</strong>
-            ${q.explanation}
+          <div class="mt-2 text-xs sm:text-sm bg-[#151821] p-3.5 rounded-xl border border-[#242937] text-slate-300 leading-relaxed whitespace-pre-line">
+            <strong class="text-blue-400 font-semibold block mb-1">詳細解題思路與呈分試避坑分析：</strong>${q.explanation}
           </div>
         `;
         container.appendChild(card);
       });
+
+      if (renderedCount === 0 && showWrongOnly) {
+        container.innerHTML = `<div class="text-center py-8 text-emerald-400 font-bold">太棒了！本科 20 題全部答對，沒有任何錯題！</div>`;
+      }
     }
 
-    function retakeSubject() {
-      userAnswers[currentSubject].fill(null);
-      userFlags[currentSubject].fill(false);
-      timers[currentSubject] = 1200;
-      timeSpent[currentSubject] = 0;
+    function resetCurrentExam() {
+      userAnswers.fill(null);
+      flaggedQuestions.fill(false);
+      timerTotalSeconds = 1200;
+      timeSpentSeconds = 0;
       isPaused = false;
 
       document.getElementById('result-view').classList.remove('flex');
       document.getElementById('result-view').classList.add('hidden');
       document.getElementById('exam-card').classList.remove('hidden');
 
+      updateTabUI();
       loadQuestion(0);
       renderPalette();
+      renderTimer();
+      startTimer();
     }
 
     window.onload = () => {
-      switchSubject('English');
+      document.getElementById('daily-rotation-info').textContent = `今日預設輪替科目：${subjectLabels[currentSubject].name}（支援每日自動輪替或手動切換）`;
+      updateTabUI();
+      renderPalette();
+      loadQuestion(0);
       startTimer();
     };
   </script>
 </body>
 </html>
-```eof
